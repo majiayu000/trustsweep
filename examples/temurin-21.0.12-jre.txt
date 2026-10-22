@@ -1,0 +1,10 @@
+trustsweep 0.1.0 | feed emudhra-2026-10 (builtin, generated 2026-10-22T03:23:31Z, 20 certs, 1262 OneCRL entries)
+scanned 170 files, 2 archives, 0 excluded | 1 CA bundles found | 0 errors
+
+TRUSTS     jre21.tar.gz!/jdk-21.0.12.1+1-jre/lib/security/cacerts
+           trust store contains a root that issued or cross-signed a revoked CA (118 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 53379]
+           package: java jdk 21.0.12.1  (from jre21.tar.gz!/jdk-21.0.12.1+1-jre/release)
+           fix: upgrade to 27.0.1 / 25.0.5 / 21.0.13 / 17.0.21 / 11.0.33 / 8u511 (https://emudhra.we-have-a-problem.com/#developers)
+
+1 trust stores still trust a revoked CA; 0 findings need review

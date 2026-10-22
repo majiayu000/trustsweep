@@ -1,0 +1,41 @@
+trustsweep 0.1.0 | feed emudhra-2026-10 (builtin, generated 2026-10-22T03:23:31Z, 20 certs, 1262 OneCRL entries)
+scanned 2591 files, 4 archives, 0 excluded | 3 CA bundles found | 0 errors
+
+TRUSTS     /etc/ssl/certs/ca-certificates.crt
+           layer 1 (sha256:dfaaa230ea7e)
+           trust store contains a root that issued or cross-signed a revoked CA (121 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 175616]
+           package: apk ca-certificates-bundle 20260909-r0  (from /lib/apk/db/installed)
+           fix: upgrade to 20261020-r0 (https://emudhra.we-have-a-problem.com/#developers)
+
+TRUSTS     /usr/local/lib/python3.12/ensurepip/_bundled/pip-25.0.1-py3-none-any.whl!/pip/_vendor/certifi/cacert.pem
+           layer 2 (sha256:322376317f03)
+           trust store contains a root that issued or cross-signed a revoked CA (151 certs in file)
+           - AAA Certificate Services [root, feed, matched by sha256 at byte 8285]
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 182076]
+           package: pypi pip 25.0.1  (from /usr/local/lib/python3.12/ensurepip/_bundled/pip-25.0.1-py3-none-any.whl!/pip-25.0.1.dist-info/RECORD)
+           fix: upgrade to 26.2.2 (https://github.com/pypa/pip/releases/tag/26.2.2)
+
+TRUSTS     /usr/local/lib/python3.12/site-packages/pip/_vendor/certifi/cacert.pem
+           layer 2 (sha256:322376317f03)
+           trust store contains a root that issued or cross-signed a revoked CA (151 certs in file)
+           - AAA Certificate Services [root, feed, matched by sha256 at byte 8285]
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 182076]
+           package: pypi pip 25.0.1  (from /usr/local/lib/python3.12/site-packages/pip-25.0.1.dist-info/RECORD)
+           fix: upgrade to 26.2.2 (https://github.com/pypa/pip/releases/tag/26.2.2)
+
+REVIEW     /usr/share/ca-certificates/mozilla/emSign_ECC_Root_CA_-_G3.crt
+           layer 1 (sha256:dfaaa230ea7e)
+           single certificate, not a bundle: may be a test fixture or a pinned anchor (1 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 0]
+           package: apk ca-certificates 20260909-r0  (from /lib/apk/db/installed)
+           fix: upgrade to 20261020-r0 (https://emudhra.we-have-a-problem.com/#developers)
+
+SUPERSEDED /etc/ssl/certs/ca-certificates.crt
+           layer 0 (sha256:1b349a333453)
+           trust store contains a root that issued or cross-signed a revoked CA (121 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 175616]
+           package: apk ca-certificates-bundle 20260909-r0  (from /lib/apk/db/installed)
+           fix: upgrade to 20261020-r0 (https://emudhra.we-have-a-problem.com/#developers)
+
+3 trust stores still trust a revoked CA; 1 findings need review

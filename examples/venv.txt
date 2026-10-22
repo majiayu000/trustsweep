@@ -1,0 +1,16 @@
+trustsweep 0.1.0 | feed emudhra-2026-10 (builtin, generated 2026-10-22T03:23:31Z, 20 certs, 1262 OneCRL entries)
+scanned 26465 files, 6 archives, 0 excluded | 3 CA bundles found | 0 errors
+
+TRUSTS     ~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem
+           trust store contains a root that issued or cross-signed a revoked CA (137 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 151427]
+           package: pypi certifi 2026.2.25  (from ~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi-2026.2.25.dist-info/RECORD)
+           fix: upgrade to 2026.10.19 (https://github.com/certifi/python-certifi/releases/tag/2026.10.19)
+
+TRUSTS     ~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem
+           trust store contains a root that issued or cross-signed a revoked CA (130 certs in file)
+           - AAA Certificate Services [root, feed, matched by sha256 at byte 10304]
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 218862]
+           package: pypi grpcio 1.78.0  (from ~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpcio-1.78.0.dist-info/RECORD)
+
+2 trust stores still trust a revoked CA; 0 findings need review

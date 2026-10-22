@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem"
+                },
+                "region": {
+                  "byteLength": 1516,
+                  "byteOffset": 10304
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem: AAA Certificate Services (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi grpcio 1.78.0"
+          },
+          "partialFingerprints": {
+            "certificate": "D7A7A0FB5D7E2731D771E9484EBCDEF71D5F0C3E0A2948782BC83EE0EA699EF4"
+          },
+          "ruleId": "trusts-revoked-ca"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem"
+                },
+                "region": {
+                  "byteLength": 858,
+                  "byteOffset": 218862
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem: emSign ECC Root CA - G3 (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi grpcio 1.78.0"
+          },
+          "partialFingerprints": {
+            "certificate": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+          },
+          "ruleId": "trusts-revoked-ca"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem"
+                },
+                "region": {
+                  "byteLength": 858,
+                  "byteOffset": 151427
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem: emSign ECC Root CA - G3 (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi certifi 2026.2.25, upgrade to 2026.10.19"
+          },
+          "partialFingerprints": {
+            "certificate": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+          },
+          "ruleId": "trusts-revoked-ca"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "trustsweep",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "trusts-revoked-ca",
+              "shortDescription": {
+                "text": "CA bundle still trusts a root that issued or cross-signed a revoked CA"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "contains-revoked-ca",
+              "shortDescription": {
+                "text": "File contains a revoked CA certificate"
+              }
+            }
+          ],
+          "version": "0.1.0"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}

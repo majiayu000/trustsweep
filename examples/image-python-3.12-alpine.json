@@ -1,0 +1,246 @@
+{
+  "tool": "trustsweep",
+  "version": "0.1.0",
+  "feed": {
+    "id": "emudhra-2026-10",
+    "generated_at": "2026-10-22T03:23:31Z",
+    "origin": "builtin",
+    "certs": 20,
+    "onecrl": 1262
+  },
+  "stats": {
+    "files": 2591,
+    "archives": 4,
+    "excluded": 0
+  },
+  "findings": [
+    {
+      "path": "/etc/ssl/certs/ca-certificates.crt",
+      "layer": 0,
+      "layer_digest": "sha256:1b349a3334531b575b01d409540dd8aca14ef29abddacd50f36643d7c949db4b",
+      "verdict": "trusts",
+      "reason": "trust store contains a root that issued or cross-signed a revoked CA",
+      "superseded": true,
+      "cert_count": 121,
+      "matches": [
+        {
+          "name": "emSign ECC Root CA - G3",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 175616,
+          "len": 858,
+          "cert_sha256": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+        }
+      ],
+      "owner": {
+        "ecosystem": "apk",
+        "name": "ca-certificates-bundle",
+        "version": "20260909-r0",
+        "evidence": "/lib/apk/db/installed"
+      },
+      "fix": {
+        "ecosystem": "apk",
+        "name": "ca-certificates-bundle",
+        "fixed": [
+          "20261020-r0"
+        ],
+        "source": "https://emudhra.we-have-a-problem.com/#developers"
+      }
+    },
+    {
+      "path": "/etc/ssl/certs/ca-certificates.crt",
+      "layer": 1,
+      "layer_digest": "sha256:dfaaa230ea7ec28bca657204471dfca64a5da1aef23e18d61b55ca95567516da",
+      "verdict": "trusts",
+      "reason": "trust store contains a root that issued or cross-signed a revoked CA",
+      "superseded": false,
+      "cert_count": 121,
+      "matches": [
+        {
+          "name": "emSign ECC Root CA - G3",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 175616,
+          "len": 858,
+          "cert_sha256": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+        }
+      ],
+      "owner": {
+        "ecosystem": "apk",
+        "name": "ca-certificates-bundle",
+        "version": "20260909-r0",
+        "evidence": "/lib/apk/db/installed"
+      },
+      "fix": {
+        "ecosystem": "apk",
+        "name": "ca-certificates-bundle",
+        "fixed": [
+          "20261020-r0"
+        ],
+        "source": "https://emudhra.we-have-a-problem.com/#developers"
+      }
+    },
+    {
+      "path": "/usr/share/ca-certificates/mozilla/emSign_ECC_Root_CA_-_G3.crt",
+      "layer": 1,
+      "layer_digest": "sha256:dfaaa230ea7ec28bca657204471dfca64a5da1aef23e18d61b55ca95567516da",
+      "verdict": "review",
+      "reason": "single certificate, not a bundle: may be a test fixture or a pinned anchor",
+      "superseded": false,
+      "cert_count": 1,
+      "matches": [
+        {
+          "name": "emSign ECC Root CA - G3",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 0,
+          "len": 858,
+          "cert_sha256": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+        }
+      ],
+      "owner": {
+        "ecosystem": "apk",
+        "name": "ca-certificates",
+        "version": "20260909-r0",
+        "evidence": "/lib/apk/db/installed"
+      },
+      "fix": {
+        "ecosystem": "apk",
+        "name": "ca-certificates",
+        "fixed": [
+          "20261020-r0"
+        ],
+        "source": "https://emudhra.we-have-a-problem.com/#developers"
+      }
+    },
+    {
+      "path": "/usr/local/lib/python3.12/ensurepip/_bundled/pip-25.0.1-py3-none-any.whl!/pip/_vendor/certifi/cacert.pem",
+      "layer": 2,
+      "layer_digest": "sha256:322376317f0327aa291bb93f2279a4a9c1bc97a33b1d04d7f0bf680e24faecf0",
+      "verdict": "trusts",
+      "reason": "trust store contains a root that issued or cross-signed a revoked CA",
+      "superseded": false,
+      "cert_count": 151,
+      "matches": [
+        {
+          "name": "AAA Certificate Services",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 8285,
+          "len": 1516,
+          "cert_sha256": "D7A7A0FB5D7E2731D771E9484EBCDEF71D5F0C3E0A2948782BC83EE0EA699EF4"
+        },
+        {
+          "name": "emSign ECC Root CA - G3",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 182076,
+          "len": 858,
+          "cert_sha256": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+        }
+      ],
+      "owner": {
+        "ecosystem": "pypi",
+        "name": "pip",
+        "version": "25.0.1",
+        "evidence": "/usr/local/lib/python3.12/ensurepip/_bundled/pip-25.0.1-py3-none-any.whl!/pip-25.0.1.dist-info/RECORD"
+      },
+      "fix": {
+        "ecosystem": "pypi",
+        "name": "pip",
+        "fixed": [
+          "26.2.2"
+        ],
+        "source": "https://github.com/pypa/pip/releases/tag/26.2.2"
+      }
+    },
+    {
+      "path": "/usr/local/lib/python3.12/site-packages/pip/_vendor/certifi/cacert.pem",
+      "layer": 2,
+      "layer_digest": "sha256:322376317f0327aa291bb93f2279a4a9c1bc97a33b1d04d7f0bf680e24faecf0",
+      "verdict": "trusts",
+      "reason": "trust store contains a root that issued or cross-signed a revoked CA",
+      "superseded": false,
+      "cert_count": 151,
+      "matches": [
+        {
+          "name": "AAA Certificate Services",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 8285,
+          "len": 1516,
+          "cert_sha256": "D7A7A0FB5D7E2731D771E9484EBCDEF71D5F0C3E0A2948782BC83EE0EA699EF4"
+        },
+        {
+          "name": "emSign ECC Root CA - G3",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 182076,
+          "len": 858,
+          "cert_sha256": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+        }
+      ],
+      "owner": {
+        "ecosystem": "pypi",
+        "name": "pip",
+        "version": "25.0.1",
+        "evidence": "/usr/local/lib/python3.12/site-packages/pip-25.0.1.dist-info/RECORD"
+      },
+      "fix": {
+        "ecosystem": "pypi",
+        "name": "pip",
+        "fixed": [
+          "26.2.2"
+        ],
+        "source": "https://github.com/pypa/pip/releases/tag/26.2.2"
+      }
+    }
+  ],
+  "bundles": [
+    {
+      "path": "/etc/ssl/certs/ca-certificates.crt",
+      "layer": 0,
+      "certs": 121,
+      "superseded": true
+    },
+    {
+      "path": "/etc/ssl/certs/ca-certificates.crt",
+      "layer": 1,
+      "certs": 121,
+      "superseded": false
+    },
+    {
+      "path": "/usr/local/lib/python3.12/ensurepip/_bundled/pip-25.0.1-py3-none-any.whl!/pip/_vendor/certifi/cacert.pem",
+      "layer": 2,
+      "certs": 151,
+      "superseded": false
+    },
+    {
+      "path": "/usr/local/lib/python3.12/site-packages/pip/_vendor/certifi/cacert.pem",
+      "layer": 2,
+      "certs": 151,
+      "superseded": false
+    }
+  ],
+  "layers": [
+    "sha256:1b349a3334531b575b01d409540dd8aca14ef29abddacd50f36643d7c949db4b",
+    "sha256:dfaaa230ea7ec28bca657204471dfca64a5da1aef23e18d61b55ca95567516da",
+    "sha256:322376317f0327aa291bb93f2279a4a9c1bc97a33b1d04d7f0bf680e24faecf0",
+    "sha256:c09933483a6057e9081db21587db3edb950d7db3a3f43ada3d2910cc4c593552"
+  ],
+  "errors": []
+}

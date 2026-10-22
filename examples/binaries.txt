@@ -1,0 +1,36 @@
+trustsweep 0.1.0 | feed emudhra-2026-10 (builtin, generated 2026-10-22T03:23:31Z, 20 certs, 1262 OneCRL entries)
+scanned 5 files, 0 archives, 0 excluded | 4 CA bundles found | 0 errors
+
+TRUSTS     ~/.bun/bin/bun
+           trust store contains a root that issued or cross-signed a revoked CA (150 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 53386644]
+           package: generic bun version unknown  (from executable named bun)
+           fix: no fixed release yet (https://github.com/oven-sh/bun/pull/46159)
+
+TRUSTS     ~/.bun/bin/node
+           trust store contains a root that issued or cross-signed a revoked CA (155 certs in file)
+           - AAA Certificate Services [root, feed, matched by sha256 at byte 32194795]
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 32324067]
+           package: generic node version unknown  (from executable named node)
+           fix: upgrade to 22.23.4 / 24.22.1 / 26.12.1 (https://github.com/nodejs/node/releases/tag/v24.22.1)
+
+TRUSTS     ~/.local/bin/claude
+           trust store contains a root that issued or cross-signed a revoked CA (127 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 66588963]
+           package: generic claude-code version unknown  (from executable named claude)
+           fix: upgrade to 2.1.303 (https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#21303)
+
+TRUSTS     ~/.local/bin/uv
+           embeds the public key of a root that issued or cross-signed a revoked CA, the way webpki-roots stores trust anchors (removed in webpki-roots 1.0.10); rebuild against the fixed version (0 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by embedded-key at byte 35634726]
+           package: generic uv version unknown  (from executable named uv)
+           fix: upgrade to 0.13.4 (https://github.com/astral-sh/uv/releases/tag/0.13.4)
+
+TRUSTS     /opt/homebrew/bin/deno
+           trust store contains a root that issued or cross-signed a revoked CA (151 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 59137238]
+           - AAA Certificate Services [root, feed, matched by sha256 at byte 59182116]
+           package: generic deno version unknown  (from executable named deno)
+           fix: upgrade to 2.9.8 (https://github.com/denoland/deno/releases/tag/v2.9.8)
+
+5 trust stores still trust a revoked CA; 0 findings need review

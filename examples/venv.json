@@ -1,0 +1,105 @@
+{
+  "tool": "trustsweep",
+  "version": "0.1.0",
+  "feed": {
+    "id": "emudhra-2026-10",
+    "generated_at": "2026-10-22T03:23:31Z",
+    "origin": "builtin",
+    "certs": 20,
+    "onecrl": 1262
+  },
+  "stats": {
+    "files": 26465,
+    "archives": 6,
+    "excluded": 0
+  },
+  "findings": [
+    {
+      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem",
+      "verdict": "trusts",
+      "reason": "trust store contains a root that issued or cross-signed a revoked CA",
+      "superseded": false,
+      "cert_count": 130,
+      "matches": [
+        {
+          "name": "AAA Certificate Services",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 10304,
+          "len": 1516,
+          "cert_sha256": "D7A7A0FB5D7E2731D771E9484EBCDEF71D5F0C3E0A2948782BC83EE0EA699EF4"
+        },
+        {
+          "name": "emSign ECC Root CA - G3",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 218862,
+          "len": 858,
+          "cert_sha256": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+        }
+      ],
+      "owner": {
+        "ecosystem": "pypi",
+        "name": "grpcio",
+        "version": "1.78.0",
+        "evidence": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpcio-1.78.0.dist-info/RECORD"
+      },
+      "fix": null
+    },
+    {
+      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem",
+      "verdict": "trusts",
+      "reason": "trust store contains a root that issued or cross-signed a revoked CA",
+      "superseded": false,
+      "cert_count": 137,
+      "matches": [
+        {
+          "name": "emSign ECC Root CA - G3",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 151427,
+          "len": 858,
+          "cert_sha256": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+        }
+      ],
+      "owner": {
+        "ecosystem": "pypi",
+        "name": "certifi",
+        "version": "2026.2.25",
+        "evidence": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi-2026.2.25.dist-info/RECORD"
+      },
+      "fix": {
+        "ecosystem": "pypi",
+        "name": "certifi",
+        "fixed": [
+          "2026.10.19"
+        ],
+        "source": "https://github.com/certifi/python-certifi/releases/tag/2026.10.19"
+      }
+    }
+  ],
+  "bundles": [
+    {
+      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem",
+      "certs": 130,
+      "superseded": false
+    },
+    {
+      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem",
+      "certs": 137,
+      "superseded": false
+    },
+    {
+      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/future/backports/test/sha256.pem",
+      "certs": 4,
+      "superseded": false
+    }
+  ],
+  "errors": []
+}
