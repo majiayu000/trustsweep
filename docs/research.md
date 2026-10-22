@@ -133,7 +133,7 @@
 
 ## 4. argus 能复用什么
 
-argus（`/Users/apple/Desktop/code/AI/tool/argus`，Rust workspace，0.3.0）里最相关的是 `argus-archive`。它把 tar.gz 和 ZIP 解压到磁盘，带路径安全检查和条目数、路径长度上限，也有 `extract_zip_to_memory`。但：
+[argus](https://github.com/majiayu000/argus)（Rust workspace，0.3.0）里最相关的是 `argus-archive`。它把 tar.gz 和 ZIP 解压到磁盘，带路径安全检查和条目数、路径长度上限，也有 `extract_zip_to_memory`。但：
 
 1. 它没有发布到 crates.io（`cargo search argus-archive` 无结果），只能用 path 或 git 依赖，会把 trustsweep 绑在 argus 仓库上；
 2. trustsweep 需要的是"逐条目读进内存、嵌套递归、不落盘"，而 argus-archive 是"解压到目录"的模型。
