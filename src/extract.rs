@@ -10,6 +10,8 @@ use x509_parser::prelude::{FromDer, X509Certificate};
 pub enum Encoding {
     Pem,
     Der,
+    /// DER written as an escaped string literal in source code (`b"0\x82..."`).
+    Escaped,
 }
 
 #[derive(Debug, Clone)]
@@ -164,9 +166,123 @@ pub fn parse_der_blobs(data: &[u8]) -> Vec<ParsedCert> {
     out
 }
 
-/// All certificates in a buffer, PEM and DER.
+/// Decode a C/Rust/Go string literal body starting after its opening quote.
+/// Returns the bytes and the offset of the closing quote.
+fn unescape_literal(data: &[u8], mut i: usize) -> Option<(Vec<u8>, usize)> {
+    const MAX_LITERAL: usize = 1 << 20;
+    let start = i;
+    let mut out = Vec::new();
+    while i < data.len() && i - start < MAX_LITERAL {
+        match data[i] {
+            b'"' => return Some((out, i)),
+            b'\\' => {
+                let next = *data.get(i + 1)?;
+                i += 2;
+                match next {
+                    b'x' => {
+                        let hex = std::str::from_utf8(data.get(i..i + 2)?).ok()?;
+                        out.push(u8::from_str_radix(hex, 16).ok()?);
+                        i += 2;
+                    }
+                    b'0'..=b'7' => {
+                        // C octal escape, up to three digits; also covers Rust `\0`.
+                        let mut v = u32::from(next - b'0');
+                        for _ in 0..2 {
+                            match data.get(i) {
+                                Some(d @ b'0'..=b'7') => {
+                                    v = v * 8 + u32::from(d - b'0');
+                                    i += 1;
+                                }
+                                _ => break,
+                            }
+                        }
+                        out.push(u8::try_from(v).ok()?);
+                    }
+                    b'n' => out.push(b'\n'),
+                    b'r' => out.push(b'\r'),
+                    b't' => out.push(b'\t'),
+                    b'\n' => {
+                        // Rust line continuation skips the following whitespace.
+                        while data.get(i).is_some_and(|b| b.is_ascii_whitespace()) {
+                            i += 1;
+                        }
+                    }
+                    other => out.push(other),
+                }
+            }
+            b => {
+                out.push(b);
+                i += 1;
+            }
+        }
+    }
+    None
+}
+
+/// Certificates written as escaped string literals, as in webpki-root-certs or generated C headers.
+pub fn parse_escaped_literals(data: &[u8]) -> Vec<ParsedCert> {
+    let mut out = Vec::new();
+    // A certificate starts with SEQUENCE 0x30 0x82, escaped as `0\x82`, `\x30\x82` or octal `\60\202`.
+    for prefix in [&b"\"0\\x82"[..], b"\"\\x30\\x82", b"\"\\60\\202", b"\"\\060\\202"] {
+        let mut i = 0;
+        while let Some(rel) = memmem::find(&data[i..], prefix) {
+            let quote = i + rel;
+            i = quote + 1;
+            let Some((bytes, end)) = unescape_literal(data, quote + 1) else {
+                continue;
+            };
+            for mut c in parse_der_blobs(&bytes) {
+                c.encoding = Encoding::Escaped;
+                c.offset = quote;
+                c.len = end + 1 - quote;
+                out.push(c);
+            }
+            i = end + 1;
+        }
+    }
+    out
+}
+
+/// Certificates written as C byte arrays (`{0x30, 0x82, ...}`, as `xxd -i` emits).
+pub fn parse_hex_arrays(data: &[u8]) -> Vec<ParsedCert> {
+    let mut out = Vec::new();
+    let mut i = 0;
+    while let Some(rel) = memmem::find(&data[i..], b"0x30,") {
+        let start = i + rel;
+        let mut bytes = Vec::new();
+        let mut j = start;
+        // Tokens are `0xHH` separated by commas and whitespace.
+        while let Some(tok) = data.get(j..j + 4) {
+            let hex = match (tok[0], tok[1]) {
+                (b'0', b'x' | b'X') => std::str::from_utf8(&tok[2..]).ok().and_then(|h| u8::from_str_radix(h, 16).ok()),
+                _ => None,
+            };
+            let Some(b) = hex else { break };
+            bytes.push(b);
+            j += 4;
+            while data.get(j).is_some_and(|c| *c == b',' || c.is_ascii_whitespace()) {
+                j += 1;
+            }
+        }
+        i = if j > start { j } else { start + 1 };
+        if bytes.get(1) != Some(&0x82) {
+            continue;
+        }
+        for mut c in parse_der_blobs(&bytes) {
+            c.encoding = Encoding::Escaped;
+            c.offset = start;
+            c.len = j - start;
+            out.push(c);
+        }
+    }
+    out
+}
+
+/// All certificates in a buffer: PEM, DER and escaped source literals.
 pub fn find_certs(data: &[u8]) -> Vec<ParsedCert> {
     let mut certs = parse_pem_blocks(data);
     certs.extend(parse_der_blobs(data));
+    certs.extend(parse_escaped_literals(data));
+    certs.extend(parse_hex_arrays(data));
     certs
 }

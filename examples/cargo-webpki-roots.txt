@@ -1,5 +1,11 @@
 trustsweep 0.1.0 | feed emudhra-2026-10 (builtin, generated 2026-10-22T03:23:31Z, 20 certs, 1262 OneCRL entries)
-scanned 26 files, 0 archives, 0 excluded | 2 CA bundles found | 0 errors
+scanned 36 files, 0 archives, 0 excluded | 3 CA bundles found | 0 errors
+
+TRUSTS     ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-root-certs-1.0.9/src/lib.rs
+           trust store contains a root that issued or cross-signed a revoked CA (121 certs in file)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 274516]
+           package: cargo webpki-root-certs 1.0.9  (from cargo registry path)
+           fix: upgrade to 1.0.10 (https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.10)
 
 TRUSTS     ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-1.0.9/src/lib.rs
            trust store contains a root that issued or cross-signed a revoked CA (121 certs in file)
@@ -7,4 +13,4 @@ TRUSTS     ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-1
            package: cargo webpki-roots 1.0.9  (from cargo registry path)
            fix: upgrade to 1.0.10 (https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.10)
 
-1 trust stores still trust a revoked CA; 0 findings need review
+2 trust stores still trust a revoked CA; 0 findings need review

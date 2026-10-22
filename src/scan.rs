@@ -109,6 +109,7 @@ pub fn is_meta(path: &str) -> bool {
         || path.ends_with("var/lib/dpkg/status")
         || path.ends_with("lib/apk/db/installed")
         || (path.contains("var/lib/dpkg/info/") && path.ends_with(".list"))
+        || path.contains("var/lib/dpkg/status.d/")
         || (path.contains("META-INF/maven/") && path.ends_with("/pom.properties"))
     {
         return true;
@@ -395,7 +396,9 @@ impl<'a> Scanner<'a> {
             self.layer_paths.push(LayerPaths::default());
             let result = match magic.as_slice() {
                 [0x1f, 0x8b, ..] => self.scan_layer(GzDecoder::new(reader), li),
-                [0x28, 0xb5, 0x2f, 0xfd] => Err(anyhow!("zstd-compressed layers are not supported")),
+                [0x28, 0xb5, 0x2f, 0xfd] => ruzstd::decoding::StreamingDecoder::new(reader)
+                    .map_err(|e| anyhow!("zstd: {e}"))
+                    .and_then(|d| self.scan_layer(d, li)),
                 _ => self.scan_layer(reader, li),
             };
             result.with_context(|| format!("layer {li} ({layer})"))?;

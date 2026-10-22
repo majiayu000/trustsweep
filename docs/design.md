@@ -7,18 +7,19 @@
 | 命令 | 输入 | 说明 |
 |---|---|---|
 | `trustsweep scan <path>...` | 目录或单个文件 | 递归遍历，不跟随符号链接。zip 类压缩包（`.whl` `.jar` `.war` `.ear` `.zip` `.apk` `.nupkg` `.asar` 除外）和 tar 类（`.tar` `.tar.gz` `.tgz`）会在内存里展开并递归，嵌套深度上限为 4 |
-| `trustsweep image <tar\|ref>` | `docker save` 输出的 tar；如果传的不是文件，就调用 `docker save <ref>` 导出到临时目录 | 读 `manifest.json`，按顺序逐层扫描，支持 gzip 层。zstd 层会直接报错 |
+| `trustsweep image <tar\|ref>` | `docker save` 输出的 tar；如果传的不是文件，就调用 `docker save <ref>` 导出到临时目录 | 读 `manifest.json`，按顺序逐层扫描，支持未压缩、gzip 和 zstd 层 |
 | `trustsweep feed update` | 无 | 从事件页 JSON 和 OneCRL 重新生成数据源，写到缓存文件 |
 
 asar 第一版不展开，作为普通文件扫描。asar 里的文件本来就不压缩，PEM 和 DER 可以直接被找到。
 
 ## 2. 证书提取
 
-对每个文件的字节做三种扫描，都不依赖文件名或扩展名：
+对每个文件的字节做四种扫描，都不依赖文件名或扩展名：
 
 1. **PEM**：找 `-----BEGIN CERTIFICATE-----` 和 `-----BEGIN TRUSTED CERTIFICATE-----`，取到对应的 END 为止。先去掉字面量 `\n`、`\r`、`\t` 转义（处理 JS 和 C 字符串里的 PEM），再只保留 base64 字符，然后解码。这样二进制里的 C 字符串（Node、Go fallback）和 JS 源码里的 PEM 都能找到。
 2. **DER**：找 `30 82 LL LL 30 82` 模式，即证书 SEQUENCE 后面紧跟 tbsCertificate SEQUENCE，再用 x509-parser 严格解析，解析成功并且长度一致才算。JKS（entry 里存的就是 DER）、明文 PKCS#12（JDK 的 cacerts 不加密证书）、Bun 的 `root_certs.der`、Chromium 内置的根，都靠这一步找到。第一版不单独写 JKS 和 PKCS#12 解析器，DER 扫描已经覆盖了它们；JKS 的别名和 PKCS#12 的信任属性不读。
-3. **嵌入公钥字节**：对数据源里每张带 PEM 的证书，取出它 SPKI 里的公钥 BIT STRING 内容（P-384 是 97 字节，RSA-2048 的模数约 270 字节），用 Aho-Corasick 在整个文件里一次性搜索。webpki-roots 编译进 Rust 二进制后只剩 SPKI 字节，没有完整证书，前两种扫描都找不到，只能靠这一步。如果命中位置落在某张已解析出的完整证书内部，就不再单独报告。
+3. **源码字面量**：把 `"0\x82…"`、`"\x30\x82…"`、八进制 `"\60\202…"` 这类转义字节串（webpki-root-certs 的源码、生成出来的 C 头文件）解码后再做 DER 扫描；`xxd -i` 风格的 `0x30, 0x82, …` 数组也一样处理。
+4. **嵌入公钥字节**：对数据源里每张带 PEM 的证书，取出它 SPKI 里的公钥 BIT STRING 内容（P-384 是 97 字节，RSA-2048 的模数约 270 字节），用 Aho-Corasick 在整个文件里一次性搜索。webpki-roots 编译进 Rust 二进制后只剩 SPKI 字节，没有完整证书，前两种扫描都找不到，只能靠这一步。如果命中位置落在某张已解析出的完整证书内部，就不再单独报告。
 
 ## 3. 指纹比对
 
@@ -44,10 +45,11 @@ OneCRL 里另一类条目是 `issuerName`+`serialNumber`，按"颁发者 DER + �
 2. **npm**：路径里最后一个 `node_modules/<name>`（或 `@scope/name`），版本取那一层的 `package.json`。
 3. **Maven**：jar 里的 `META-INF/maven/<g>/<a>/pom.properties`。
 4. **JDK**：`.../lib/security/cacerts`，版本取 JDK 根目录 `release` 文件里的 `JAVA_VERSION`。
-5. **dpkg**：`/var/lib/dpkg/info/<pkg>.list` 和 `/var/lib/dpkg/status`；`/etc/ssl/certs/ca-certificates.crt` 是生成出来的文件，不在任何 .list 里，直接归给 ca-certificates。
+5. **dpkg**：`/var/lib/dpkg/info/<pkg>.list` 和 `/var/lib/dpkg/status`；distroless 镜像没有这两个文件，改用 `status.d/<pkg>` 和 `status.d/<pkg>.md5sums`；`/etc/ssl/certs/ca-certificates.crt` 是生成出来的文件，不在任何 .list 里，直接归给 ca-certificates。
 6. **apk**：`/lib/apk/db/installed`，其中 `P:` 是包名，`V:` 是版本，`F:` 是目录，`R:` 是文件。
-7. **Homebrew**：路径中的 `Cellar/<pkg>/<ver>/`。
-8. **二进制**：文件名匹配数据源里的 `binaries` 字段（node、bun、deno、uv、electron 等），版本标为未知。
+7. **RPM 系**：`/etc/pki/ca-trust/extracted/...` 和 `/etc/pki/tls/certs/ca-bundle.crt` 按路径归给 ca-certificates。rpm 数据库是 sqlite，不解析，所以版本显示为未知。
+8. **Homebrew**：路径中的 `Cellar/<pkg>/<ver>/`。
+9. **二进制**：文件名匹配数据源里的 `binaries` 字段（node、bun、deno、uv、electron 等），版本标为未知。
 
 然后用 `(ecosystem, name)` 去查数据源的 `fixes` 表。修复版本来自事件页的 "Who has patched" 表，每条都记了来源 URL。第一版**不做版本比较**：只要证书确实在文件里，就足以说明问题；版本号只用来提示"升级到下列版本之一"。之所以不比较，是因为各生态的版本格式差别很大（Debian 有 `~deb12u2` 这样的写法），而且已经升过级的环境里仍可能留着旧的自带副本，这时证书在不在才是准确的判断依据。
 
@@ -104,4 +106,4 @@ argus-archive 是"解压到磁盘"的模型，而且没有发布到 crates.io。
 
 ## 10. 第一版不做的事
 
-webpki-root-certs 源码里那种转义成 Rust 字节串的 DER（编译后的二进制能扫到）、registry 拉取、rpm 数据库、Go buildinfo 解析、asar 和 Flatpak 的专门解析、版本比较、CCADB Removed 报告接入（它不含 PEM，只能按指纹比对，以后可以作为 `root` 角色的补充来源）。
+registry 拉取、rpm 数据库、Go buildinfo 解析、asar 和 Flatpak 的专门解析、版本比较、CCADB Removed 报告接入（它不含 PEM，只能按指纹比对，以后可以作为 `root` 角色的补充来源）。

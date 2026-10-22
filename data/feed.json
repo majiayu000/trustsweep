@@ -5243,7 +5243,8 @@
       "ecosystem": "cargo",
       "name": "webpki-roots",
       "fixed": [
-        "1.0.10"
+        "1.0.10",
+        "0.26.11"
       ],
       "source": "https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.10"
     },
@@ -5251,7 +5252,8 @@
       "ecosystem": "cargo",
       "name": "webpki-root-certs",
       "fixed": [
-        "1.0.10"
+        "1.0.10",
+        "0.26.11"
       ],
       "source": "https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.10"
     },
@@ -5451,6 +5453,14 @@
         "2026-10-20"
       ],
       "source": "https://curl.se/docs/caextract.html"
+    },
+    {
+      "ecosystem": "rpm",
+      "name": "ca-certificates",
+      "fixed": [
+        "2026.2.92_v9.0.319 (Fedora)"
+      ],
+      "source": "https://bugzilla.redhat.com/show_bug.cgi?id=2556376"
     }
   ],
   "binaries": [

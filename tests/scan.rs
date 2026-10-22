@@ -403,3 +403,72 @@ fn js_joined_pem_keeps_base64_plus_at_line_start() {
         assert_eq!(found[0].sha256, c.sha256);
     }
 }
+
+fn escaped(der: &[u8], octal: bool) -> String {
+    der.iter()
+        .map(|b| if octal { format!("\\{b:o}") } else { format!("\\x{b:02X}") })
+        .collect()
+}
+
+#[test]
+fn escaped_source_literals_are_found() {
+    let p = pki();
+    let m = matcher(&p, vec![]);
+    // webpki-root-certs style Rust source, and a C header using octal escapes.
+    let rust = format!(
+        "pub const TLS_SERVER_ROOT_CERTS: &[CertificateDer<'static>] = &[\n  CertificateDer::from_slice(b\"{}\"),\n  CertificateDer::from_slice(b\"{}\"),\n];\n",
+        escaped(&p.benign_der, false),
+        escaped(&p.root_der, false)
+    );
+    let c = format!("static const char roots[] = \"{}\";\n", escaped(&p.root_der, true));
+    let xxd: Vec<String> = p.root_der.iter().map(|b| format!("0x{b:02x}")).collect();
+    let xxd = format!("unsigned char root_der[] = {{\n  {}\n}};\n", xxd.join(", "));
+    let r = run(&m, |s| {
+        s.scan_bytes("/v/webpki-root-certs-1.0.9/src/lib.rs", rust.as_bytes(), 0);
+        s.scan_bytes("/v/roots.h", c.as_bytes(), 0);
+        s.scan_bytes("/v/root_der.h", xxd.as_bytes(), 0);
+    });
+    assert!(r.findings.iter().any(|f| f.path.ends_with("root_der.h")));
+    let lib = r.findings.iter().find(|f| f.path.ends_with("lib.rs")).unwrap();
+    assert_eq!(lib.verdict, Verdict::Trusts);
+    assert_eq!(lib.cert_count, 2);
+    let h = r.findings.iter().find(|f| f.path.ends_with("roots.h")).unwrap();
+    assert_eq!(h.matches[0].matched_by, MatchedBy::Sha256);
+}
+
+#[test]
+fn distroless_status_d_and_rpm_paths_are_attributed() {
+    let p = pki();
+    let m = matcher(&p, vec![]);
+    let bad = format!("{}{}", p.benign_pem, p.root_pem);
+    let r = run(&m, |s| {
+        s.scan_bytes(
+            "/var/lib/dpkg/status.d/ca-certificates",
+            b"Package: ca-certificates\nVersion: 20230311+deb12u1\nArchitecture: all\n",
+            0,
+        );
+        s.scan_bytes("/var/lib/dpkg/status.d/ca-certificates.md5sums", b"0123  usr/share/doc/ca-certificates/copyright\n", 0);
+        s.scan_bytes("/etc/ssl/certs/ca-certificates.crt", bad.as_bytes(), 0);
+    });
+    let o = r.findings[0].owner.as_ref().unwrap();
+    assert_eq!((o.ecosystem.as_str(), o.name.as_str(), o.version.as_deref()), ("deb", "ca-certificates", Some("20230311+deb12u1")));
+
+    let r = run(&m, |s| s.scan_bytes("/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", bad.as_bytes(), 0));
+    let o = r.findings[0].owner.as_ref().unwrap();
+    assert_eq!((o.ecosystem.as_str(), o.name.as_str()), ("rpm", "ca-certificates"));
+}
+
+#[test]
+fn zstd_layers_are_scanned() {
+    let p = pki();
+    let m = matcher(&p, vec![]);
+    let bad = format!("{}{}", p.benign_pem, p.root_pem);
+    let layer = tar_bytes(&[("etc/ssl/cert.pem", bad.as_bytes())]);
+    let zst = ruzstd::encoding::compress_to_vec(&layer[..], ruzstd::encoding::CompressionLevel::Fastest);
+    assert_eq!(&zst[..4], &[0x28, 0xb5, 0x2f, 0xfd]);
+    let dir = tempfile::tempdir().unwrap();
+    let img = image_tarball(dir.path(), vec![zst]);
+    let r = run(&m, |s| s.scan_image(&img).unwrap());
+    assert_eq!(r.findings.len(), 1);
+    assert_eq!(r.findings[0].path, "/etc/ssl/cert.pem");
+}
