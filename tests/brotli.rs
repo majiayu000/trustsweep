@@ -17,6 +17,7 @@ fn matcher() -> Matcher {
         sources: vec![],
         certs: vec![],
         onecrl: vec![],
+        removed: vec![],
         fixes: vec![],
         binaries: vec![BinaryName {
             file: "bun".into(),

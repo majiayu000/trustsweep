@@ -27,9 +27,9 @@ OSV 里**查不到**以下几类的相关通告：pip 25.0.1（它自带 certifi
 | 源码里的字节串字面量（webpki-root-certs、C 数组） | ✅ | ❌ | 按 Cargo.lock 匹配 RUSTSEC | ✅ | ❌ | ❌ |
 | 嵌套压缩包（wheel、jar、tgz、crate、gem） | ✅ 在内存里展开 | 包级 | 包级 | ✅ | ❌ | ❌ |
 | Java cacerts（JKS、PKCS#12） | ✅ | ❌ | ❌ | ✅ | ✅ | ✅（连接测试 + `blocked.certs`） |
-| 容器镜像 | ✅ 逐层扫描，识别 whiteout，标出被覆盖的文件，支持 gzip 和 zstd 层 | 有镜像扫描，但不盘点证书 | 按包扫描 | tar 能读，但不按层处理（未见） | 读 overlay2 目录，需要 root | `docker create` 后读 CA 文件 |
+| 容器镜像 | ✅ 直接按 OCI Distribution API 从镜像仓库拉取（匿名 token，或读 docker config 里的凭据），也支持 OCI layout 目录和 `docker save` 的 tar；多架构镜像按平台选择；逐层扫描，识别 whiteout，标出被覆盖的文件，支持 gzip 和 zstd 层 | 有镜像扫描，但不盘点证书 | 按包扫描 | tar 能读，但不按层处理（未见） | 读 overlay2 目录，需要 root | `docker create` 后读 CA 文件 |
 | 给出属于哪个包、该升到什么版本 | ✅（dist-info、package.json、pom、JDK release、dpkg/apk/distroless、Homebrew、cargo） | — | ✅，限于有通告的包 | ❌ 需要调用方自己补坐标 | 部分 | ✅ |
-| 同时对照 OneCRL 全量 | ✅ 1262 条 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 对照 Mozilla 公开的不再信任列表 | ✅ OneCRL 1262 条，加上 CCADB 已移除且未过期的根 106 个，每次 `feed update` 全量重建 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | 数据源自动更新 | ✅ `feed update`，失败直接报错 | — | ✅ 漏洞库 | 内置快照 | 需要手动刷新 `tools/sources` | 内置 |
 | 离线运行 | ✅ | ✅ | 漏洞库需要先下载 | ✅ | ✅ | ❌（要连 12 台测试服务器） |
 | 实际连接测试 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
@@ -47,7 +47,6 @@ emsign-trust-scan 默认**不**报告 AAA Certificate Services。它的理由是
 
 - 实际连接测试（wakumo 有）。
 - 自动修复（wakumo、yuxiao1231 有）。
-- 直接从 registry 拉镜像，不经过 docker。
 - 读取 rpm 数据库来取版本：RPM 系统上的 bundle 能按路径归给 ca-certificates，但版本显示为未知。
 - 读取二进制自身的版本：二进制只按文件名归属，版本显示为未知。
 

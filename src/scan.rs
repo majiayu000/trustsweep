@@ -93,6 +93,8 @@ pub struct Scanner<'a> {
     pub bundles: Vec<Bundle>,
     pub errors: Vec<ScanError>,
     pub store: HashMap<String, Vec<u8>>,
+    /// Set when the input was pulled from a registry or an OCI layout.
+    pub image: Option<crate::registry::Pulled>,
 }
 
 enum ArchiveKind {
@@ -160,6 +162,7 @@ impl<'a> Scanner<'a> {
             bundles: Vec::new(),
             errors: Vec::new(),
             store: HashMap::new(),
+            image: None,
         })
     }
 
@@ -416,28 +419,39 @@ impl<'a> Scanner<'a> {
             .collect::<Result<_>>()?;
 
         let mut file = File::open(tarball)?;
-        for (li, layer) in layers.iter().enumerate() {
+        for layer in &layers {
             let &(pos, size) = index
                 .get(layer.as_str())
                 .ok_or_else(|| anyhow!("layer {layer} listed in manifest but missing from tarball"))?;
             file.seek(SeekFrom::Start(pos))?;
-            let mut reader = BufReader::new((&mut file).take(size));
-            let magic = reader.fill_buf()?.get(..4).map(<[u8]>::to_vec).unwrap_or_default();
-            self.current_layer = Some(li);
-            self.layers.push(layer_digest(layer));
-            self.layer_paths.push(LayerPaths::default());
-            let result = match magic.as_slice() {
-                [0x1f, 0x8b, ..] => self.scan_layer(GzDecoder::new(reader), li),
-                [0x28, 0xb5, 0x2f, 0xfd] => ruzstd::decoding::StreamingDecoder::new(reader)
-                    .map_err(|e| anyhow!("zstd: {e}"))
-                    .and_then(|d| self.scan_layer(d, li)),
-                _ => self.scan_layer(reader, li),
-            };
-            result.with_context(|| format!("layer {li} ({layer})"))?;
+            self.scan_layer_blob((&mut file).take(size), &layer_digest(layer))?;
         }
+        self.finish_layers();
+        Ok(())
+    }
+
+    /// Scan the next image layer from its blob (plain, gzip or zstd tar), in manifest order.
+    pub fn scan_layer_blob<R: Read>(&mut self, blob: R, digest: &str) -> Result<()> {
+        let li = self.layers.len();
+        let mut reader = BufReader::new(blob);
+        let magic = reader.fill_buf()?.get(..4).map(<[u8]>::to_vec).unwrap_or_default();
+        self.current_layer = Some(li);
+        self.layers.push(digest.to_string());
+        self.layer_paths.push(LayerPaths::default());
+        let result = match magic.as_slice() {
+            [0x1f, 0x8b, ..] => self.scan_layer(GzDecoder::new(reader), li),
+            [0x28, 0xb5, 0x2f, 0xfd] => ruzstd::decoding::StreamingDecoder::new(reader)
+                .map_err(|e| anyhow!("zstd: {e}"))
+                .and_then(|d| self.scan_layer(d, li)),
+            _ => self.scan_layer(reader, li),
+        };
+        result.with_context(|| format!("layer {li} ({digest})"))
+    }
+
+    /// Call after the last layer: marks files that later layers replaced or deleted.
+    pub fn finish_layers(&mut self) {
         self.current_layer = None;
         self.mark_superseded();
-        Ok(())
     }
 
     fn scan_layer<R: Read>(&mut self, reader: R, li: usize) -> Result<()> {

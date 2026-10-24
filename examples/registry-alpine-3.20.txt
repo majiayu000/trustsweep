@@ -1,0 +1,13 @@
+trustsweep 0.1.0 | feed mozilla-distrust (builtin, generated 2026-10-24T17:46:29Z, 20 incident certs, 1262 OneCRL entries, 106 removed roots)
+image registry-1.docker.io/library/alpine:3.20 | manifest sha256:45e09956dc667c5eff3583c9d94830261fb1ca0be10a0a7db36266edf5de9e1d | linux/arm64 | 1 layers
+scanned 93 files, 1 archives, 0 excluded | 1 CA bundles found | 0 errors
+
+TRUSTS     /etc/ssl/certs/ca-certificates.crt
+           layer 0 (sha256:3f26bc2dec0b)
+           trust store contains a root that issued or cross-signed a revoked CA (145 certs in file)
+           - 18 roots Mozilla removed: AffirmTrust Commercial (removed from Mozilla in NSS 3.123); AffirmTrust Networking (removed from Mozilla in NSS 3.123); AffirmTrust Premium (removed from Mozilla in NSS 3.123); AffirmTrust Premium ECC (removed from Mozilla in NSS 3.123); Entrust Root Certification Authority (removed from Mozilla in NSS 3.125); FIRMAPROFESIONAL CA ROOT-A WEB (removed from Mozilla in NSS 3.123); GLOBALTRUST 2020 (removed from Mozilla in NSS 3.123); SecureSign Root CA12 (removed from Mozilla in NSS 3.125); SecureTrust CA (removed from Mozilla in NSS 3.123); Secure Global CA (removed from Mozilla in NSS 3.123); TeliaSonera Root CA v1 (removed from Mozilla in NSS 3.123); Trustwave Global Certification Authority (removed from Mozilla in NSS 3.123); Trustwave Global ECC P256 Certification Authority (removed from Mozilla in NSS 3.123); Trustwave Global ECC P384 Certification Authority (removed from Mozilla in NSS 3.123); certSIGN ROOT CA (removed from Mozilla in NSS 3.123); ePKI Root Certification Authority (removed from Mozilla in NSS 3.126); emSign ECC Root CA - C3 (removed from Mozilla in NSS 3.131); emSign Root CA - C1 (removed from Mozilla in NSS 3.131)
+           - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 211661]
+           package: apk ca-certificates-bundle 20260413-r0  (from /lib/apk/db/installed)
+           fix: upgrade to 20261020-r0 (https://emudhra.we-have-a-problem.com/#developers)
+
+1 trust stores still trust a revoked CA; 0 findings need review

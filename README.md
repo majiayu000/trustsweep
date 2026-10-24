@@ -20,9 +20,11 @@ cargo install --git https://github.com/majiayu000/trustsweep
 
 ```bash
 trustsweep scan .venv node_modules ~/.local/bin app.jar   # files, directories, archives
-trustsweep image python:3.12-alpine                       # container image, layer by layer (uses `docker save`)
+trustsweep image python:3.12-alpine                       # pulled straight from the registry, no docker needed
+trustsweep image ghcr.io/org/app:tag --platform linux/amd64
+trustsweep image ./oci-layout-dir                         # or an OCI layout directory / `docker save` tarball
 trustsweep scan . --format sarif -o trustsweep.sarif      # GitHub Code Scanning
-trustsweep feed update                                    # refresh revoked-CA data from the incident JSON + OneCRL
+trustsweep feed update                                    # rebuild the feed from Mozilla OneCRL, CCADB and incident data
 ```
 
 Exit code `1` means a live CA bundle still trusts a revoked CA. Exit code `2` means the scan was incomplete or failed. Exit code `0` means neither.
@@ -110,11 +112,19 @@ Design notes and incident research are in [docs/design.md](docs/design.md) and [
 
 ## Data
 
-The built-in feed has one incident so far: **eMudhra, October 2026**. It holds the 16 revoked intermediate certificates (8 CAs, each with a Sectigo cross-sign), the 4 roots they chain to, and the 1262 enabled Mozilla OneCRL entries. `trustsweep feed update` rebuilds it from [emudhra.we-have-a-problem.com](https://emudhra.we-have-a-problem.com/) and OneCRL and checks every published digest against its PEM. If a source fails, the update stops with an error instead of keeping stale data.
+The feed is rebuilt in full by `trustsweep feed update` from three public sources. If any of them fails, the update stops with an error instead of keeping stale data.
+
+| Source | What it adds | Result when found in a bundle |
+|---|---|---|
+| [Mozilla OneCRL](https://firefox.settings.services.mozilla.com/v1/buckets/security-state/collections/onecrl/changeset?_expected=0) | 1262 enabled revoked intermediates (by SPKI hash or issuer + serial) | `REVIEW` |
+| [CCADB Mozilla removed-roots report](https://ccadb.my.salesforce-sites.com/mozilla/RemovedCACertificateReportCSVFormat) | 106 unexpired roots Mozilla removed from NSS (expired ones are dropped) | `REVIEW`: the report does not say whether a removal was a distrust or a routine retirement |
+| Incident data, currently [eMudhra, October 2026](https://emudhra.we-have-a-problem.com/) | 16 compromised intermediates and the 4 roots that chain to them, with PEM, so bare keys can be found too | `TRUSTS` for the roots |
+
+The numbers are from the built-in snapshot dated 2026-10-24. Fixed versions per package come from a hand-maintained table that `feed update` keeps.
 
 ## Limits
 
-- No registry pulls: images come from `docker save`.
+- Registry pulls use anonymous tokens, or credentials from `TRUSTSWEEP_REGISTRY_USERNAME`/`_PASSWORD` or the `auths` entries in `~/.docker/config.json`. Docker credential helpers are not run; use `--docker` to scan through the local daemon instead.
 - The rpm database is not read, and binary versions are not extracted, so those versions show as unknown.
 - No live TLS tests and no auto-fix: trustsweep only reports.
 

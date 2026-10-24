@@ -77,6 +77,7 @@ fn matcher(p: &Pki, onecrl: Vec<OneCrlEntry>) -> Matcher {
             feed_cert("Test Revoked Intermediate", Role::Revoked, &p.revoked_pem),
         ],
         onecrl,
+        removed: vec![],
         fixes: vec![
             fix("pypi", "certifi", "2099.1.1"),
             fix("deb", "ca-certificates", "99990101"),
@@ -353,6 +354,7 @@ fn onecrl_issuer_serial_entry_matches() {
         sources: vec![],
         certs: vec![],
         onecrl: vec![entry],
+        removed: vec![],
         fixes: vec![],
         binaries: vec![],
     }

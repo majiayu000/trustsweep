@@ -7,7 +7,7 @@
 | 命令 | 输入 | 说明 |
 |---|---|---|
 | `trustsweep scan <path>...` | 目录或单个文件 | 递归遍历，不跟随符号链接。zip 类压缩包（`.whl` `.jar` `.war` `.ear` `.zip` `.apk` `.nupkg` `.asar` 除外）和 tar 类（`.tar` `.tar.gz` `.tgz`）会在内存里展开并递归，嵌套深度上限为 4 |
-| `trustsweep image <tar\|ref>` | `docker save` 输出的 tar；如果传的不是文件，就调用 `docker save <ref>` 导出到临时目录 | 读 `manifest.json`，按顺序逐层扫描，支持未压缩、gzip 和 zstd 层 |
+| `trustsweep image <ref\|dir\|tar>` | 镜像仓库的引用（直接拉取，见 §12）、OCI layout 目录，或 `docker save` 输出的 tar；加 `--docker` 时改用本机的 `docker save` | 按顺序逐层扫描，支持未压缩、gzip 和 zstd 层 |
 | `trustsweep feed update` | 无 | 从事件页 JSON 和 OneCRL 重新生成数据源，写到缓存文件 |
 
 asar 第一版不展开，作为普通文件扫描。asar 里的文件本来就不压缩，PEM 和 DER 可以直接被找到。
@@ -106,7 +106,7 @@ argus-archive 是"解压到磁盘"的模型，而且没有发布到 crates.io。
 
 ## 10. 第一版不做的事
 
-registry 拉取、rpm 数据库、Go buildinfo 解析、asar 和 Flatpak 的专门解析、版本比较、CCADB Removed 报告接入（它不含 PEM，只能按指纹比对，以后可以作为 `root` 角色的补充来源）。
+rpm 数据库、Go buildinfo 解析、asar 和 Flatpak 的专门解析、版本比较。registry 拉取和 CCADB 已在后续版本补上，见 §12、§13。
 
 ## 11. brotlisweep 子命令（CVE-2026-111497）
 
@@ -115,3 +115,26 @@ registry 拉取、rpm 数据库、Go buildinfo 解析、asar 和 Flatpak 的专�
 - 版本证据有两个来源，优先用包元数据（PyPI Brotli、brotlicffi 的 dist-info）。没有包元数据时，读二进制里写的产品版本，按 bun、electron、deno、node 的顺序取第一个匹配的产品，同一产品出现多个版本时取出现次数最多的。修复版本按分支前缀匹配，例如 Node 22 的修复版本是 22.23.4。
 - 判定：有标记就是 fixed；没有标记、且版本早于所在分支的修复版本，才是 unfixed；其余情况都是 unknown。所以"找不到标记"本身永远不会被判成 unfixed。
 - 退出码：存在未被覆盖的 unfixed 时为 1；扫描不完整时为 2；其余为 0。SARIF 用 `brotli-unfixed`（error）和 `brotli-unknown`（warning）两条规则。
+
+## 12. 直接从镜像仓库拉取
+
+- 引用格式：`alpine`、`alpine:3.20`、`ghcr.io/o/r:tag`、`host:port/r@sha256:…`。没写 registry 时默认是 Docker Hub（`registry-1.docker.io`），单段名称会补成 `library/<name>`。
+- 先请求 `GET /v2/<repo>/manifests/<ref>`，Accept 头同时声明 OCI 和 Docker v2 的 index 与 manifest 类型。收到 401 时，按 `WWW-Authenticate` 的指示处理：Bearer 方式去 realm 拿 token，默认匿名，有凭据时带上 Basic；Basic 方式直接用凭据。
+- 凭据来源依次是：环境变量 `TRUSTSWEEP_REGISTRY_USERNAME` / `TRUSTSWEEP_REGISTRY_PASSWORD`；`$DOCKER_CONFIG/config.json` 或 `~/.docker/config.json` 里 `auths` 下的 `auth`。不执行 credential helper。ureq 遇到跨主机重定向时不转发 Authorization 头，所以 CDN 拿不到凭据。
+- 拉到的是多架构 index 时，按 `--platform` 选（默认是本机 CPU 对应的 linux 架构）；找不到匹配的平台就报错，并列出 index 里有哪些平台。
+- 每个 manifest 和每个层都要校验 sha256 digest。层先写进临时目录、校验通过后再交给现有的逐层扫描。带 `urls` 的 foreign layer 不下载，直接报错。
+- OCI layout 目录走同一套流程（`index.json` → manifest → 层），测试就用它代替网络。
+
+## 13. 数据源泛化
+
+`feed update` 每次全量重建，三个来源缺一个就报错退出：
+
+| 来源 | 格式 | 进入数据源的内容 | 角色 |
+|---|---|---|---|
+| Mozilla OneCRL（Remote Settings changeset） | JSON | `enabled` 的条目：`subject`+`pubKeyHash`，或 `issuerName`+`serialNumber` | `revoked` |
+| CCADB Mozilla Removed CA Certificate Report | CSV（带 BOM，每个字段都有引号） | `Valid To` 晚于当天的根：名称、SHA-256、`NSS Release When Removed`、移除 bug | `removed` |
+| 事件数据（目前是 eMudhra） | JSON，含 PEM | 被攻破的中间 CA 和它们链到的根 | `revoked`、`root` |
+
+- CSV 按表头里的列名取值，列名对不上就报错，不会悄悄读错列。
+- `removed` 只按证书 SHA-256 匹配，因为报告里没有 PEM，也就没有公钥字节可搜。和事件根重复的（例如 emSign ECC Root CA - G3）以事件根为准。
+- 判定：`removed` 命中算 REVIEW，不算失败，因为报告不区分"出了问题被取消信任"和"CA 自己退役"。事件根命中仍是 TRUSTS。文本输出把一个文件里命中的 removed 根合并成一行，JSON 里逐条列出。

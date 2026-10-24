@@ -7,6 +7,7 @@ use std::process::Command;
 use trustsweep::brotli::Rules;
 use trustsweep::brotli_report::BrotliReport;
 use trustsweep::feed::{self, Feed, Matcher};
+use trustsweep::registry::{self, OciLayout, Platform, Registry};
 use trustsweep::report::Report;
 use trustsweep::scan::Scanner;
 
@@ -26,9 +27,12 @@ enum Cmd {
         #[command(flatten)]
         opts: ScanOpts,
     },
-    /// Scan a container image layer by layer: a `docker save` tarball, or an image ref passed to `docker save`
+    /// Scan a container image layer by layer: a registry reference (pulled directly, no docker
+    /// needed), an OCI image layout directory, or a `docker save` tarball
     Image {
         image: String,
+        #[command(flatten)]
+        img: ImageOpts,
         #[command(flatten)]
         opts: ScanOpts,
     },
@@ -36,9 +40,11 @@ enum Cmd {
     #[command(visible_alias = "brotli")]
     Brotlisweep {
         paths: Vec<PathBuf>,
-        /// Also scan a container image (a `docker save` tarball or an image ref)
+        /// Also scan a container image (registry reference, OCI layout directory or `docker save` tarball)
         #[arg(long)]
         image: Option<String>,
+        #[command(flatten)]
+        img: ImageOpts,
         #[command(flatten)]
         opts: ScanOpts,
     },
@@ -51,7 +57,7 @@ enum Cmd {
 
 #[derive(Subcommand)]
 enum FeedCmd {
-    /// Rebuild the feed from the incident JSON and Mozilla OneCRL
+    /// Rebuild the feed from Mozilla OneCRL, the CCADB removed-roots report and the incident JSON
     Update {
         /// Where to write the feed (default: the user cache file, used automatically by later scans)
         #[arg(long)]
@@ -63,6 +69,8 @@ enum FeedCmd {
         incident_base: String,
         #[arg(long, default_value = feed::ONECRL_URL)]
         onecrl_url: String,
+        #[arg(long, default_value = feed::CCADB_REMOVED_URL)]
+        ccadb_removed_url: String,
     },
     /// Print which feed is active
     Show {
@@ -76,6 +84,16 @@ enum Format {
     Text,
     Json,
     Sarif,
+}
+
+#[derive(Args)]
+struct ImageOpts {
+    /// Platform to pick from a multi-arch image, e.g. linux/amd64 or linux/arm64/v8 (default: linux on this CPU)
+    #[arg(long)]
+    platform: Option<String>,
+    /// Export the image with the local `docker save` instead of pulling it from the registry
+    #[arg(long)]
+    docker: bool,
 }
 
 #[derive(Args)]
@@ -153,7 +171,7 @@ fn run_scan(opts: &ScanOpts, scan: impl FnOnce(&mut Scanner) -> Result<()>) -> R
     Ok(report.exit_code())
 }
 
-fn run_brotli(opts: &ScanOpts, paths: &[PathBuf], image: Option<&Path>) -> Result<i32> {
+fn run_brotli(opts: &ScanOpts, paths: &[PathBuf], image: Option<(&str, &ImageOpts)>) -> Result<i32> {
     let rules = Rules::builtin()?;
     // The feed is only used here for its executable-name attribution table.
     let (feed, origin) = Feed::load(opts.feed.as_deref())?;
@@ -165,8 +183,8 @@ fn run_brotli(opts: &ScanOpts, paths: &[PathBuf], image: Option<&Path>) -> Resul
         }
         s.scan_path(p);
     }
-    if let Some(tarball) = image {
-        s.scan_image(tarball)?;
+    if let Some((image, img)) = image {
+        scan_image_arg(&mut s, image, img)?;
     }
     let report = BrotliReport::build(s, &rules);
     emit(
@@ -178,6 +196,33 @@ fn run_brotli(opts: &ScanOpts, paths: &[PathBuf], image: Option<&Path>) -> Resul
         },
     )?;
     Ok(report.exit_code())
+}
+
+fn scan_image_arg(s: &mut Scanner, image: &str, img: &ImageOpts) -> Result<()> {
+    let path = Path::new(image);
+    let platform = match &img.platform {
+        Some(p) => Platform::parse(p)?,
+        None => Platform::host(),
+    };
+    if img.docker {
+        let tmp = tempfile::tempdir()?;
+        return s.scan_image(&docker_save(image, tmp.path())?);
+    }
+    if path.is_file() {
+        return s.scan_image(path);
+    }
+    let pulled = if path.is_dir() {
+        if !OciLayout::is_layout(path) {
+            bail!("{} is a directory but not an OCI image layout (no oci-layout/index.json)", path.display());
+        }
+        registry::pull_and_scan(&mut OciLayout { dir: path.to_path_buf() }, "", &platform, s)?
+    } else {
+        let r = registry::parse_ref(image)?;
+        let reference = r.reference.clone();
+        registry::pull_and_scan(&mut Registry::new(r)?, &reference, &platform, s)?
+    };
+    s.image = Some(pulled);
+    Ok(())
 }
 
 fn docker_save(image: &str, dir: &Path) -> Result<PathBuf> {
@@ -216,27 +261,17 @@ fn run(cli: Cli) -> Result<i32> {
             }
             Ok(())
         }),
-        Cmd::Brotlisweep { paths, image, opts } => {
+        Cmd::Brotlisweep { paths, image, img, opts } => {
             if paths.is_empty() && image.is_none() {
                 bail!("give at least one path or --image");
             }
-            let tmp = tempfile::tempdir()?;
-            let tarball = match image {
-                Some(i) if Path::new(&i).is_file() => Some(PathBuf::from(i)),
-                Some(i) => Some(docker_save(&i, tmp.path())?),
-                None => None,
-            };
-            run_brotli(&opts, &paths, tarball.as_deref())
+            run_brotli(&opts, &paths, image.as_deref().map(|i| (i, &img)))
         }
-        Cmd::Image { image, opts } => {
-            let path = PathBuf::from(&image);
-            let tmp = tempfile::tempdir()?;
-            let tarball = if path.is_file() { path } else { docker_save(&image, tmp.path())? };
-            run_scan(&opts, |s| s.scan_image(&tarball))
-        }
-        Cmd::Feed { cmd: FeedCmd::Update { out, feed, incident_base, onecrl_url } } => {
+        Cmd::Image { image, img, opts } => run_scan(&opts, |s| scan_image_arg(s, &image, &img)),
+        Cmd::Feed { cmd: FeedCmd::Update { out, feed, incident_base, onecrl_url, ccadb_removed_url } } => {
             let (base, _) = Feed::load(feed.as_deref())?;
-            let new = feed::update(&base, &incident_base, &onecrl_url, now_utc())?;
+            let sources = feed::fetch_sources(&incident_base, &onecrl_url, &ccadb_removed_url)?;
+            let new = feed::build(&base, sources, now_utc())?;
             new.compile("update".into()).context("refusing to write a feed that does not compile")?;
             let out = match out {
                 Some(p) => p,
@@ -246,7 +281,13 @@ fn run(cli: Cli) -> Result<i32> {
                 std::fs::create_dir_all(dir)?;
             }
             std::fs::write(&out, serde_json::to_string_pretty(&new)? + "\n")?;
-            eprintln!("wrote {} ({} certs, {} OneCRL entries)", out.display(), new.certs.len(), new.onecrl.len());
+            eprintln!(
+                "wrote {} ({} incident certs, {} OneCRL entries, {} removed roots)",
+                out.display(),
+                new.certs.len(),
+                new.onecrl.len(),
+                new.removed.len()
+            );
             Ok(0)
         }
         Cmd::Feed { cmd: FeedCmd::Show { feed } } => {

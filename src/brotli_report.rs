@@ -7,6 +7,7 @@ use std::fmt::Write;
 
 use crate::attribute::{Owner, attribute};
 use crate::brotli::{Claim, Rules, Status, VersionEvidence, judge};
+use crate::registry::Pulled;
 use crate::scan::{ScanError, Scanner, Stats};
 
 #[derive(Debug, Clone, Serialize)]
@@ -57,6 +58,8 @@ pub struct BrotliReport {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub layers: Vec<String>,
     pub errors: Vec<ScanError>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image: Option<Pulled>,
 }
 
 /// `name-1.2.3.dist-info/RECORD` → (`name`, `1.2.3`), name lowercased.
@@ -161,6 +164,7 @@ impl BrotliReport {
             findings,
             layers: scanner.layers,
             errors: scanner.errors,
+            image: scanner.image,
         }
     }
 
@@ -186,6 +190,9 @@ impl BrotliReport {
             "trustsweep {} brotli | {} (rules {}, snapshot {})",
             self.version, self.rules.advisory, self.rules.id, self.rules.snapshot
         );
+        if let Some(i) = &self.image {
+            let _ = writeln!(s, "image {} | manifest {} | {} | {} layers", i.source, i.manifest_digest, i.platform.as_deref().unwrap_or("single-platform"), i.layers);
+        }
         let _ = writeln!(
             s,
             "scanned {} files, {} archives, {} excluded | {} Brotli decoders found | {} errors\n",

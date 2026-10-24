@@ -13,6 +13,7 @@ pub const BUILTIN_FEED: &str = include_str!("../data/feed.json");
 
 pub const INCIDENT_BASE: &str = "https://emudhra.we-have-a-problem.com";
 pub const ONECRL_URL: &str = "https://firefox.settings.services.mozilla.com/v1/buckets/security-state/collections/onecrl/changeset?_expected=0";
+pub const CCADB_REMOVED_URL: &str = "https://ccadb.my.salesforce-sites.com/mozilla/RemovedCACertificateReportCSVFormat";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -21,6 +22,9 @@ pub enum Role {
     Root,
     /// The revoked CA certificate itself.
     Revoked,
+    /// A root Mozilla removed from its root store (CCADB). Removal can be a distrust or a routine
+    /// retirement, and the report does not say which.
+    Removed,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,6 +47,16 @@ pub struct OneCrlEntry {
     pub issuer: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub serial: Option<String>,
+}
+
+/// A still-valid root that Mozilla removed from NSS, from the CCADB "Removed CA Certificate" report.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RemovedRoot {
+    pub name: String,
+    pub sha256: String,
+    pub nss_removed: String,
+    pub valid_to: String,
+    pub bug: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -69,6 +83,8 @@ pub struct Feed {
     pub certs: Vec<FeedCert>,
     #[serde(default)]
     pub onecrl: Vec<OneCrlEntry>,
+    #[serde(default)]
+    pub removed: Vec<RemovedRoot>,
     pub fixes: Vec<Fix>,
     pub binaries: Vec<BinaryName>,
 }
@@ -81,6 +97,7 @@ pub struct FeedInfo {
     pub origin: String,
     pub certs: usize,
     pub onecrl: usize,
+    pub removed: usize,
 }
 
 /// One thing a found certificate can match.
@@ -171,6 +188,7 @@ impl Feed {
                 origin,
                 certs: self.certs.len(),
                 onecrl: self.onecrl.len(),
+                removed: self.removed.len(),
             },
         };
         for c in &self.certs {
@@ -222,6 +240,18 @@ impl Feed {
                 }
                 _ => bail!("OneCRL entry has neither subject+pub_key_hash nor issuer+serial"),
             }
+        }
+        for r in &self.removed {
+            let key = hex32(&r.sha256)?;
+            if m.by_sha256.contains_key(&key) {
+                continue;
+            }
+            m.by_sha256.insert(key, m.targets.len());
+            m.targets.push(Target {
+                name: format!("{} (removed from Mozilla in {})", r.name, r.nss_removed),
+                role: Role::Removed,
+                source: "ccadb",
+            });
         }
         Ok(m)
     }
@@ -300,17 +330,75 @@ fn enabled_default() -> bool {
     true
 }
 
-/// Rebuild certs and OneCRL entries from the live sources, keeping the hand-maintained fix table.
-pub fn update(base: &Feed, incident_base: &str, onecrl_url: &str, now: String) -> Result<Feed> {
+/// The raw documents a feed is built from.
+pub struct Sources {
+    pub roots_json: String,
+    pub intermediates_json: String,
+    pub onecrl_json: String,
+    pub removed_csv: String,
+    pub urls: Vec<String>,
+}
+
+/// Fetch every source; any failure stops the update.
+pub fn fetch_sources(incident_base: &str, onecrl_url: &str, removed_url: &str) -> Result<Sources> {
     let roots_url = format!("{incident_base}/roots.json");
     let inter_url = format!("{incident_base}/impacted-intermediates.json");
-    let roots: Vec<IncidentCert> =
-        serde_json::from_str(&fetch(&roots_url)?).with_context(|| format!("parsing {roots_url}"))?;
+    Ok(Sources {
+        roots_json: fetch(&roots_url)?,
+        intermediates_json: fetch(&inter_url)?,
+        onecrl_json: fetch(onecrl_url)?,
+        removed_csv: fetch(removed_url)?,
+        urls: vec![roots_url, inter_url, onecrl_url.to_string(), removed_url.to_string()],
+    })
+}
+
+/// Removed roots from the CCADB CSV that have not expired by `today` (`YYYY-MM-DD`).
+pub fn parse_removed(csv_text: &str, today: &str) -> Result<Vec<RemovedRoot>> {
+    let mut rd = csv::Reader::from_reader(csv_text.trim_start_matches('\u{feff}').as_bytes());
+    let headers = rd.headers().context("CCADB report has no header row")?.clone();
+    let col = |name: &str| {
+        headers
+            .iter()
+            .position(|h| h == name)
+            .ok_or_else(|| anyhow!("CCADB report has no column {name:?}; the format changed"))
+    };
+    let (name, sha, nss, valid_to, bug) = (
+        col("Root Certificate Name")?,
+        col("SHA-256 Fingerprint")?,
+        col("NSS Release When Removed")?,
+        col("Valid To [GMT]")?,
+        col("Removal Bug No. or Date")?,
+    );
+    let mut out = Vec::new();
+    for (i, rec) in rd.records().enumerate() {
+        let rec = rec.with_context(|| format!("CCADB report row {}", i + 2))?;
+        let field = |c: usize| rec.get(c).unwrap_or("").trim().to_string();
+        let expires = field(valid_to).replace('.', "-");
+        if expires.as_str() < today {
+            continue;
+        }
+        let sha256 = field(sha).to_ascii_uppercase();
+        hex32(&sha256).with_context(|| format!("CCADB report row {}: bad SHA-256", i + 2))?;
+        let nss_removed = field(nss);
+        out.push(RemovedRoot {
+            name: field(name),
+            sha256,
+            nss_removed: if nss_removed.starts_with("NSS") { nss_removed } else { format!("NSS {nss_removed}") },
+            valid_to: expires,
+            bug: field(bug),
+        });
+    }
+    Ok(out)
+}
+
+/// Build a feed from fetched documents, keeping the hand-maintained fix table of `base`.
+pub fn build(base: &Feed, src: Sources, now: String) -> Result<Feed> {
+    let roots: Vec<IncidentCert> = serde_json::from_str(&src.roots_json).context("parsing incident roots.json")?;
     let inters: Vec<IncidentCert> =
-        serde_json::from_str(&fetch(&inter_url)?).with_context(|| format!("parsing {inter_url}"))?;
-    let onecrl: OneCrlChangeset =
-        serde_json::from_str(&fetch(onecrl_url)?).with_context(|| format!("parsing {onecrl_url}"))?;
-    if roots.is_empty() || inters.is_empty() || onecrl.changes.is_empty() {
+        serde_json::from_str(&src.intermediates_json).context("parsing incident impacted-intermediates.json")?;
+    let onecrl: OneCrlChangeset = serde_json::from_str(&src.onecrl_json).context("parsing OneCRL changeset")?;
+    let removed = parse_removed(&src.removed_csv, now.get(..10).unwrap_or(&now))?;
+    if roots.is_empty() || inters.is_empty() || onecrl.changes.is_empty() || removed.is_empty() {
         bail!("a feed source returned an empty list; refusing to write a feed without it");
     }
 
@@ -349,9 +437,10 @@ pub fn update(base: &Feed, incident_base: &str, onecrl_url: &str, now: String) -
     Ok(Feed {
         id: base.id.clone(),
         generated_at: now,
-        sources: vec![roots_url, inter_url, onecrl_url.to_string()],
+        sources: src.urls,
         certs,
         onecrl,
+        removed,
         fixes: base.fixes.clone(),
         binaries: base.binaries.clone(),
     })

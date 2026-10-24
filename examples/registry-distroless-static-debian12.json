@@ -1,0 +1,329 @@
+{
+  "tool": "trustsweep",
+  "version": "0.1.0",
+  "feed": {
+    "id": "mozilla-distrust",
+    "generated_at": "2026-10-24T17:46:29Z",
+    "origin": "builtin",
+    "certs": 20,
+    "onecrl": 1262,
+    "removed": 106
+  },
+  "stats": {
+    "files": 965,
+    "archives": 0,
+    "excluded": 0
+  },
+  "findings": [
+    {
+      "path": "/etc/ssl/certs/ca-certificates.crt",
+      "layer": 11,
+      "layer_digest": "sha256:96ed2737ae312e0bc637b40783f7c2f23416cb72ca957aa01855f1614278e64b",
+      "verdict": "trusts",
+      "reason": "trust store contains a root that issued or cross-signed a revoked CA",
+      "superseded": false,
+      "cert_count": 150,
+      "matches": [
+        {
+          "name": "AffirmTrust Commercial (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 9815,
+          "len": 1203,
+          "cert_sha256": "0376AB1D54C5F9803CE4B2E201A0EE7EEF7B57B636E8A93C9B8D4860C96F5FA7"
+        },
+        {
+          "name": "AffirmTrust Networking (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 11019,
+          "len": 1203,
+          "cert_sha256": "0A81EC5A929777F145904AF38D5D509F66B5E2C58FCDB531058B0E17F3F0B41B"
+        },
+        {
+          "name": "AffirmTrust Premium (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 12223,
+          "len": 1890,
+          "cert_sha256": "70A73F7F376B60074248904534B11482D5BF0E698ECC498DF52577EBF2E93B9A"
+        },
+        {
+          "name": "AffirmTrust Premium ECC (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 14114,
+          "len": 752,
+          "cert_sha256": "BD71FDF6DA97E4CF62D1647ADD2581B07D79ADF8397EB4ECBA9C5E8488821423"
+        },
+        {
+          "name": "CommScope Public Trust ECC Root-01 (removed from Mozilla in NSS 3.118)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 54357,
+          "len": 793,
+          "cert_sha256": "11437CDA7BB45E41365F45B39A38986B0DE00DEF348E0C7BB0873633800BC38B"
+        },
+        {
+          "name": "CommScope Public Trust ECC Root-02 (removed from Mozilla in NSS 3.118)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 55151,
+          "len": 793,
+          "cert_sha256": "2FFB7F813BBBB3C89AB4E8162D0F16D71509A830CC9D73C262E5140875D1AD4A"
+        },
+        {
+          "name": "CommScope Public Trust RSA Root-01 (removed from Mozilla in NSS 3.118)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 55945,
+          "len": 1938,
+          "cert_sha256": "02BDF96E2A45DD9BF18FC7E1DBDF21A0379BA3C9C2610344CFD8D606FEC1ED81"
+        },
+        {
+          "name": "CommScope Public Trust RSA Root-02 (removed from Mozilla in NSS 3.118)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 57884,
+          "len": 1938,
+          "cert_sha256": "FFE943D793424B4F7C440C1C3D648D5363F34B82DC87AA7A9F118FC5DEE101F1"
+        },
+        {
+          "name": "AAA Certificate Services",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 59823,
+          "len": 1516,
+          "cert_sha256": "D7A7A0FB5D7E2731D771E9484EBCDEF71D5F0C3E0A2948782BC83EE0EA699EF4"
+        },
+        {
+          "name": "Entrust Root Certification Authority (removed from Mozilla in NSS 3.125)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 85103,
+          "len": 1642,
+          "cert_sha256": "73C176434F1BC6D5ADF45B0E76E727287C8DE57616C1E6E6141A2B2CBC7D8E4C"
+        },
+        {
+          "name": "FIRMAPROFESIONAL CA ROOT-A WEB (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 89369,
+          "len": 919,
+          "cert_sha256": "BEF256DAF26E9C69BDEC1602359798F3CAF71821A03E018257C53C65617F3D4A"
+        },
+        {
+          "name": "GLOBALTRUST 2020 (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 92269,
+          "len": 1971,
+          "cert_sha256": "9A296A5182D1D451A2E37F439B74DAAFA267523329F90F9A0D2007C334E23C9A"
+        },
+        {
+          "name": "SecureSign Root CA12 (removed from Mozilla in NSS 3.125)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 163069,
+          "len": 1256,
+          "cert_sha256": "3F034BB5704D44B2D08545A02057DE93EBF3905FCE721ACBC730C06DDAEE904E"
+        },
+        {
+          "name": "SecureTrust CA (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 167076,
+          "len": 1349,
+          "cert_sha256": "F1C1B50AE5A20DD8030EC9F6BC24823DD367B5255759B4E71B61FCE9F7375D73"
+        },
+        {
+          "name": "Secure Global CA (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 168426,
+          "len": 1353,
+          "cert_sha256": "4200F5043AC8590EBB527D209ED1503029FBCBD41CA1B506EC27F15ADE7DAC69"
+        },
+        {
+          "name": "TeliaSonera Root CA v1 (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 190539,
+          "len": 1869,
+          "cert_sha256": "DD6936FE21F8F077C123A1A521C12224F72255B73E03A7260693E8A24B0FA389"
+        },
+        {
+          "name": "Trustwave Global Certification Authority (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 197249,
+          "len": 2089,
+          "cert_sha256": "97552015F5DDFC3C8788C006944555408894450084F100867086BC1A2BB58DC8"
+        },
+        {
+          "name": "Trustwave Global ECC P256 Certification Authority (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 199339,
+          "len": 882,
+          "cert_sha256": "945BBC825EA554F489D1FD51A73DDF2EA624AC7019A05205225C22A78CCFA8B4"
+        },
+        {
+          "name": "Trustwave Global ECC P384 Certification Authority (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 200222,
+          "len": 968,
+          "cert_sha256": "55903859C8C0C3EBB8759ECE4E2557225FF5758BBD38EBD48276601E1BD58097"
+        },
+        {
+          "name": "XRamp Global Certification Authority (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 210076,
+          "len": 1512,
+          "cert_sha256": "CECDDC905099D8DADFC5B1D209B737CBE2C18CFB2C10C0FF0BCF0D3286FC1AA2"
+        },
+        {
+          "name": "certSIGN ROOT CA (removed from Mozilla in NSS 3.123)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 211589,
+          "len": 1175,
+          "cert_sha256": "EAA962C4FA4A6BAFEBE415196D351CCD888D4F53F3FA8AE6D7C466A94E6042BB"
+        },
+        {
+          "name": "ePKI Root Certification Authority (removed from Mozilla in NSS 3.126)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 215499,
+          "len": 2032,
+          "cert_sha256": "C0A6F4DC63A24BFDCF54EF2A6A082A0A72DE35803E2FF5FF527AE5D87206DFD5"
+        },
+        {
+          "name": "emSign ECC Root CA - C3 (removed from Mozilla in NSS 3.131)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 217532,
+          "len": 813,
+          "cert_sha256": "BC4D809B15189D78DB3E1D8CF4F9726A795DA1643CA5F1358E1DDB0EDC0D7EB3"
+        },
+        {
+          "name": "emSign ECC Root CA - G3",
+          "role": "root",
+          "source": "feed",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 218346,
+          "len": 858,
+          "cert_sha256": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
+        },
+        {
+          "name": "emSign Root CA - C1 (removed from Mozilla in NSS 3.131)",
+          "role": "removed",
+          "source": "ccadb",
+          "matched_by": "sha256",
+          "encoding": "pem",
+          "offset": 219205,
+          "len": 1256,
+          "cert_sha256": "125609AA301DA0A249B97A8239CB6A34216F44DCAC9F3954B14292F2E8C8608F"
+        }
+      ],
+      "owner": {
+        "ecosystem": "deb",
+        "name": "ca-certificates",
+        "version": "20250419~deb12u1",
+        "evidence": "/etc/ssl/certs/ca-certificates.crt is generated by ca-certificates"
+      },
+      "fix": {
+        "ecosystem": "deb",
+        "name": "ca-certificates",
+        "fixed": [
+          "20250419~deb12u2",
+          "20250419+deb13u1",
+          "20260816+nmu1",
+          "20260816ubuntu0.22.04.1",
+          "20260816ubuntu0.24.04.1",
+          "20260816ubuntu0.26.04.1",
+          "20260816ubuntu0.26.10.1"
+        ],
+        "source": "https://emudhra.we-have-a-problem.com/#developers"
+      }
+    }
+  ],
+  "bundles": [
+    {
+      "path": "/etc/ssl/certs/ca-certificates.crt",
+      "layer": 11,
+      "certs": 150,
+      "superseded": false
+    }
+  ],
+  "layers": [
+    "sha256:a5789fc40e828c4e7467626e3f69ec5dea8e5da22fe660db8ae6d16f777b0bbf",
+    "sha256:990a9c434e5e0f11549a8d4a41a1991e621b04e30cd63269adbc97b1dc38fd7e",
+    "sha256:39dc083afc39bd8dc43d456fe7ff7d39292e593bb2769972c11bb2e5f9119386",
+    "sha256:bf7a4185f01524837d19abde915ffde84e64368b250f5b5e9f6f75aea62a11d4",
+    "sha256:2780920e5dbfbe103d03a583ed75345306e572ec5a48cb10361f046767d9f29a",
+    "sha256:7c12895b777bcaa8ccae0605b4de635b68fc32d60fa08f421dc3818bf55ee212",
+    "sha256:3214acf345c0cc6bbdb56b698a41ccdefc624a09d6beb0d38b5de0b2303ecaf4",
+    "sha256:52630fc75a18675c530ed9eba5f55eca09b03e91bd5bc15307918bbc1a7e7296",
+    "sha256:dd64bf2dd177757451a98fcdc999a339c35dee5d9872d8f4dc69c8f3c4dd0112",
+    "sha256:b839dfae01f66e15c6a8b63520557ed315bdfe036342fa7a0c537259f10d7a9a",
+    "sha256:dcaa5a89b0ccda4b283e16d0b4d0891cd93d5fe05c6798f7806781a6a2d84354",
+    "sha256:96ed2737ae312e0bc637b40783f7c2f23416cb72ca957aa01855f1614278e64b"
+  ],
+  "errors": [],
+  "image": {
+    "source": "gcr.io/distroless/static-debian12:latest",
+    "manifest_digest": "sha256:6d635b323e6ab633016668144d38e368e2894bd824500369151573225078ee03",
+    "platform": "linux/amd64",
+    "layers": 12
+  }
+}

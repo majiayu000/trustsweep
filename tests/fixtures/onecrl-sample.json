@@ -1,0 +1,50 @@
+{
+ "timestamp": 1792622041776,
+ "changes": [
+  {
+   "schema": 1792621513680,
+   "details": {
+    "bug": "https://bugzilla.mozilla.org/show_bug.cgi?id=2083382",
+    "who": "",
+    "why": "",
+    "name": "",
+    "created": ""
+   },
+   "enabled": true,
+   "subject": "MD8xCzAJBgNVBAYTAk5MMRMwEQYDVQQKDAplTXVkaHJhIEJWMRswGQYDVQQDDBJFTSBEViBUTFMgQ0EgLSBHM0I=",
+   "pubKeyHash": "6+1kdcLC2A/LGZ8/6N1uazzmC3frFdTkLD3sDG9bUQU=",
+   "id": "5ed2b441-a5bf-4f8e-89af-d01fa292a9b8",
+   "last_modified": 1792622041776
+  },
+  {
+   "schema": 1792270008816,
+   "details": {
+    "bug": "https://bugzilla.mozilla.org/show_bug.cgi?id=2083382",
+    "who": "",
+    "why": "",
+    "name": "",
+    "created": ""
+   },
+   "enabled": true,
+   "issuerName": "MFYxCzAJBgNVBAYTAklOMSUwIwYDVQQKDBxlTXVkaHJhIFRlY2hub2xvZ2llcyBMaW1pdGVkMSAwHgYDVQQDDBdlbVNpZ24gUm9vdCBUTFMgQ0EgLSBHMw==",
+   "serialNumber": "WIsuPCu4zaE+GhIJJUMh",
+   "id": "dfebe454-5411-4f64-bd26-ff0346cad020",
+   "last_modified": 1792274405312
+  },
+  {
+   "schema": 1790874064811,
+   "details": {
+    "bug": "https://bugzilla.mozilla.org/show_bug.cgi?id=2077222",
+    "who": "",
+    "why": "",
+    "name": "",
+    "created": ""
+   },
+   "enabled": false,
+   "issuerName": "MGExCzAJBgNVBAYTAkNOMTAwLgYDVQQKDCdDaGluYSBGaW5hbmNpYWwgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxIDAeBgNVBAMMF0NGQ0EgR2xvYmFsIFJTQSBST09UIEcy",
+   "serialNumber": "ePkoIc73UVpF6g==",
+   "id": "68d677f4-b0d4-4632-aa81-a7409c34b8ee",
+   "last_modified": 1791233394201
+  }
+ ]
+}

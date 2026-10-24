@@ -5,5 +5,6 @@ pub mod brotli;
 pub mod brotli_report;
 pub mod extract;
 pub mod feed;
+pub mod registry;
 pub mod report;
 pub mod scan;

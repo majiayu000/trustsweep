@@ -7,6 +7,7 @@ use std::fmt::Write;
 use crate::attribute::{Owner, attribute};
 use crate::extract::Encoding;
 use crate::feed::{FeedInfo, Fix, MatchedBy, Role};
+use crate::registry::Pulled;
 use crate::scan::{Bundle, ScanError, Scanner, Stats};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -59,6 +60,8 @@ pub struct Report {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub layers: Vec<String>,
     pub errors: Vec<ScanError>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image: Option<Pulled>,
 }
 
 impl Report {
@@ -96,8 +99,10 @@ impl Report {
                     (Verdict::Trusts, "embeds the public key of a root that issued or cross-signed a revoked CA, the way webpki-roots stores trust anchors (removed in webpki-roots 1.0.10); rebuild against the fixed version")
                 } else if has_root {
                     (Verdict::Trusts, "trust store contains a root that issued or cross-signed a revoked CA")
-                } else {
+                } else if has_revoked {
                     (Verdict::Review, "contains a revoked CA certificate: check whether it is used as a trust anchor")
+                } else {
+                    (Verdict::Review, "still contains roots Mozilla has removed from its root store: the bundle predates that NSS release or follows another root program")
                 };
                 let owner = attribute(&f.path, &scanner.store, &m.binaries);
                 let fix = owner.as_ref().and_then(|o| m.fix_for(&o.ecosystem, &o.name)).cloned();
@@ -124,6 +129,7 @@ impl Report {
             bundles: scanner.bundles,
             layers: scanner.layers,
             errors: scanner.errors,
+            image: scanner.image,
         }
     }
 
@@ -150,9 +156,12 @@ impl Report {
         let f = &self.feed;
         let _ = writeln!(
             s,
-            "trustsweep {} | feed {} ({}, generated {}, {} certs, {} OneCRL entries)",
-            self.version, f.id, f.origin, f.generated_at, f.certs, f.onecrl
+            "trustsweep {} | feed {} ({}, generated {}, {} incident certs, {} OneCRL entries, {} removed roots)",
+            self.version, f.id, f.origin, f.generated_at, f.certs, f.onecrl, f.removed
         );
+        if let Some(i) = &self.image {
+            let _ = writeln!(s, "image {} | manifest {} | {} | {} layers", i.source, i.manifest_digest, i.platform.as_deref().unwrap_or("single-platform"), i.layers);
+        }
         let live_bundles = self.bundles.iter().filter(|b| !b.superseded).count();
         let _ = writeln!(
             s,
@@ -173,10 +182,20 @@ impl Report {
                 let _ = writeln!(s, "           layer {l} ({short})");
             }
             let _ = writeln!(s, "           {} ({} certs in file)", x.reason, x.cert_count);
-            for mo in &x.matches {
+            let removed: Vec<&str> = x
+                .matches
+                .iter()
+                .filter(|mo| mo.role == Role::Removed)
+                .map(|mo| mo.name.as_str())
+                .collect();
+            if !removed.is_empty() {
+                let _ = writeln!(s, "           - {} roots Mozilla removed: {}", removed.len(), removed.join("; "));
+            }
+            for mo in x.matches.iter().filter(|mo| mo.role != Role::Removed) {
                 let role = match mo.role {
                     Role::Root => "root",
                     Role::Revoked => "revoked",
+                    Role::Removed => "removed",
                 };
                 let by = serde_json::to_value(mo.matched_by).ok().and_then(|v| v.as_str().map(str::to_string)).unwrap_or_default();
                 let _ = writeln!(s, "           - {} [{role}, {}, matched by {by} at byte {}]", mo.name, mo.source, mo.offset);
@@ -264,7 +283,7 @@ impl Report {
                     "version": self.version,
                     "rules": [
                         {"id": "trusts-revoked-ca", "shortDescription": {"text": "CA bundle still trusts a root that issued or cross-signed a revoked CA"}, "defaultConfiguration": {"level": "error"}},
-                        {"id": "contains-revoked-ca", "shortDescription": {"text": "File contains a revoked CA certificate"}, "defaultConfiguration": {"level": "warning"}}
+                        {"id": "contains-revoked-ca", "shortDescription": {"text": "File contains a revoked CA certificate or a root Mozilla removed"}, "defaultConfiguration": {"level": "warning"}}
                     ]
                 }},
                 "results": results
