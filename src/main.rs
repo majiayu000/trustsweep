@@ -4,7 +4,9 @@ use globset::{Glob, GlobSetBuilder};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use trustsweep::feed::{self, Feed};
+use trustsweep::brotli::Rules;
+use trustsweep::brotli_report::BrotliReport;
+use trustsweep::feed::{self, Feed, Matcher};
 use trustsweep::report::Report;
 use trustsweep::scan::Scanner;
 
@@ -27,6 +29,16 @@ enum Cmd {
     /// Scan a container image layer by layer: a `docker save` tarball, or an image ref passed to `docker save`
     Image {
         image: String,
+        #[command(flatten)]
+        opts: ScanOpts,
+    },
+    /// Find embedded Brotli decoders and check them for the CVE-2026-111497 fix (Mach-O incl. universal, PE, ELF, Python Brotli)
+    #[command(visible_alias = "brotli")]
+    Brotlisweep {
+        paths: Vec<PathBuf>,
+        /// Also scan a container image (a `docker save` tarball or an image ref)
+        #[arg(long)]
+        image: Option<String>,
         #[command(flatten)]
         opts: ScanOpts,
     },
@@ -106,25 +118,65 @@ fn now_utc() -> String {
     format!("{y:04}-{m:02}-{d:02}T{:02}:{:02}:{:02}Z", rem / 3600, rem % 3600 / 60, rem % 60)
 }
 
-fn run_scan(opts: &ScanOpts, scan: impl FnOnce(&mut Scanner) -> Result<()>) -> Result<i32> {
-    let (feed, origin) = Feed::load(opts.feed.as_deref())?;
-    let matcher = feed.compile(origin)?;
+fn scanner<'a>(matcher: &'a Matcher, opts: &ScanOpts) -> Result<Scanner<'a>> {
     let mut globs = GlobSetBuilder::new();
     for g in &opts.exclude {
         globs.add(Glob::new(g).with_context(|| format!("bad --exclude glob {g}"))?);
     }
-    let mut scanner = Scanner::new(&matcher, globs.build()?, opts.max_file_bytes)?;
+    Scanner::new(matcher, globs.build()?, opts.max_file_bytes)
+}
+
+fn emit(opts: &ScanOpts, out: String) -> Result<()> {
+    match &opts.output {
+        Some(p) => std::fs::write(p, out).with_context(|| format!("writing {}", p.display())),
+        None => {
+            print!("{out}");
+            Ok(())
+        }
+    }
+}
+
+fn run_scan(opts: &ScanOpts, scan: impl FnOnce(&mut Scanner) -> Result<()>) -> Result<i32> {
+    let (feed, origin) = Feed::load(opts.feed.as_deref())?;
+    let matcher = feed.compile(origin)?;
+    let mut scanner = scanner(&matcher, opts)?;
     scan(&mut scanner)?;
     let report = Report::build(scanner);
-    let out = match opts.format {
-        Format::Text => report.text(opts.verbose),
-        Format::Json => serde_json::to_string_pretty(&report)? + "\n",
-        Format::Sarif => serde_json::to_string_pretty(&report.sarif())? + "\n",
-    };
-    match &opts.output {
-        Some(p) => std::fs::write(p, out).with_context(|| format!("writing {}", p.display()))?,
-        None => print!("{out}"),
+    emit(
+        opts,
+        match opts.format {
+            Format::Text => report.text(opts.verbose),
+            Format::Json => serde_json::to_string_pretty(&report)? + "\n",
+            Format::Sarif => serde_json::to_string_pretty(&report.sarif())? + "\n",
+        },
+    )?;
+    Ok(report.exit_code())
+}
+
+fn run_brotli(opts: &ScanOpts, paths: &[PathBuf], image: Option<&Path>) -> Result<i32> {
+    let rules = Rules::builtin()?;
+    // The feed is only used here for its executable-name attribution table.
+    let (feed, origin) = Feed::load(opts.feed.as_deref())?;
+    let matcher = feed.compile(origin)?;
+    let mut s = scanner(&matcher, opts)?.with_brotli(&rules);
+    for p in paths {
+        if !p.exists() {
+            bail!("{} does not exist", p.display());
+        }
+        s.scan_path(p);
     }
+    if let Some(tarball) = image {
+        s.scan_image(tarball)?;
+    }
+    let report = BrotliReport::build(s, &rules);
+    emit(
+        opts,
+        match opts.format {
+            Format::Text => report.text(),
+            Format::Json => serde_json::to_string_pretty(&report)? + "\n",
+            Format::Sarif => serde_json::to_string_pretty(&report.sarif())? + "\n",
+        },
+    )?;
     Ok(report.exit_code())
 }
 
@@ -164,6 +216,18 @@ fn run(cli: Cli) -> Result<i32> {
             }
             Ok(())
         }),
+        Cmd::Brotlisweep { paths, image, opts } => {
+            if paths.is_empty() && image.is_none() {
+                bail!("give at least one path or --image");
+            }
+            let tmp = tempfile::tempdir()?;
+            let tarball = match image {
+                Some(i) if Path::new(&i).is_file() => Some(PathBuf::from(i)),
+                Some(i) => Some(docker_save(&i, tmp.path())?),
+                None => None,
+            };
+            run_brotli(&opts, &paths, tarball.as_deref())
+        }
         Cmd::Image { image, opts } => {
             let path = PathBuf::from(&image);
             let tmp = tempfile::tempdir()?;

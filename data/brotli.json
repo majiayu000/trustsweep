@@ -1,0 +1,82 @@
+{
+  "id": "brotli-cve-2026-111497",
+  "advisory": "CVE-2026-111497",
+  "snapshot": "2026-10-24",
+  "control": "ERROR_FORMAT_EXUBERANT_NIBBLE",
+  "marker": "ERROR_FORMAT_BLOCK_SWITCH",
+  "marker_source": "https://github.com/google/brotli/commit/0ed4268a4401abcb4472096340477cf4af7d1a2b",
+  "products": [
+    {
+      "name": "bun",
+      "claim": "bun-v",
+      "fixes": [
+        [
+          "1.",
+          "1.4.4"
+        ]
+      ],
+      "source": "https://github.com/oven-sh/bun/issues/46352 (closed before the 1.4.4 release; Patch the Planet lists 1.4.4)"
+    },
+    {
+      "name": "electron",
+      "claim": "Electron/",
+      "fixes": [],
+      "source": "no Electron advisory found as of 2026-10-24"
+    },
+    {
+      "name": "deno",
+      "claim": "Deno/",
+      "fixes": [],
+      "source": "no Deno advisory found as of 2026-10-24"
+    },
+    {
+      "name": "node",
+      "claim": "nodejs.org/download/release/v",
+      "fixes": [
+        [
+          "22.",
+          "22.23.4"
+        ],
+        [
+          "24.",
+          "24.22.1"
+        ],
+        [
+          "26.",
+          "26.12.1"
+        ]
+      ],
+      "source": "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases"
+    }
+  ],
+  "packages": [
+    {
+      "ecosystem": "pypi",
+      "name": "brotli",
+      "fixes": [
+        [
+          "1.",
+          "1.2.1"
+        ]
+      ],
+      "source": "https://github.com/advisories/GHSA-9v8h-qqgm-4m35"
+    },
+    {
+      "ecosystem": "pypi",
+      "name": "brotlicffi",
+      "fixes": [
+        [
+          "1.",
+          "1.2.1.0"
+        ]
+      ],
+      "source": "https://github.com/advisories/GHSA-9v8h-qqgm-4m35"
+    }
+  ],
+  "http_clients": [
+    "urllib3",
+    "requests",
+    "httpx",
+    "aiohttp"
+  ]
+}

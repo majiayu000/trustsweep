@@ -14,11 +14,10 @@ TRUSTS     ~/.bun/bin/node
            package: generic node version unknown  (from executable named node)
            fix: upgrade to 22.23.4 / 24.22.1 / 26.12.1 (https://github.com/nodejs/node/releases/tag/v24.22.1)
 
-TRUSTS     ~/.local/bin/claude
+TRUSTS     ~/.local/bin/example-bun-cli
            trust store contains a root that issued or cross-signed a revoked CA (127 certs in file)
            - emSign ECC Root CA - G3 [root, feed, matched by sha256 at byte 66588963]
-           package: generic claude-code version unknown  (from executable named claude)
-           fix: upgrade to 2.1.303 (https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#21303)
+           package: unknown
 
 TRUSTS     ~/.local/bin/uv
            embeds the public key of a root that issued or cross-signed a revoked CA, the way webpki-roots stores trust anchors (removed in webpki-roots 1.0.10); rebuild against the fixed version (0 certs in file)

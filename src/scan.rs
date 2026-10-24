@@ -10,6 +10,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Cursor, Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 
+use crate::brotli::{Rules, Slice, inspect};
 use crate::extract::{Encoding, find_certs};
 use crate::feed::{MatchedBy, Matcher};
 
@@ -34,6 +35,15 @@ pub struct FileHits {
     pub layer: Option<usize>,
     pub cert_count: usize,
     pub hits: Vec<Hit>,
+    pub superseded: bool,
+}
+
+/// A file with Brotli decoder strings, for `brotlisweep`.
+#[derive(Debug, Clone)]
+pub struct DecoderFile {
+    pub path: String,
+    pub layer: Option<usize>,
+    pub slices: Vec<Slice>,
     pub superseded: bool,
 }
 
@@ -68,6 +78,9 @@ struct LayerPaths {
 
 pub struct Scanner<'a> {
     pub matcher: &'a Matcher,
+    /// When set, files are checked for Brotli decoders instead of certificates.
+    brotli: Option<&'a Rules>,
+    pub decoders: Vec<DecoderFile>,
     keys: AhoCorasick,
     excludes: GlobSet,
     max_file_bytes: u64,
@@ -133,6 +146,8 @@ impl<'a> Scanner<'a> {
             .context("building key-bytes matcher")?;
         Ok(Self {
             matcher,
+            brotli: None,
+            decoders: Vec::new(),
             keys,
             excludes,
             max_file_bytes,
@@ -146,6 +161,11 @@ impl<'a> Scanner<'a> {
             errors: Vec::new(),
             store: HashMap::new(),
         })
+    }
+
+    pub fn with_brotli(mut self, rules: &'a Rules) -> Self {
+        self.brotli = Some(rules);
+        self
     }
 
     fn error(&mut self, path: &str, err: impl std::fmt::Display) {
@@ -224,6 +244,18 @@ impl<'a> Scanner<'a> {
     }
 
     fn scan_content(&mut self, path: &str, data: &[u8]) {
+        if let Some(rules) = self.brotli {
+            let slices = inspect(data, rules);
+            if !slices.is_empty() {
+                self.decoders.push(DecoderFile {
+                    path: path.to_string(),
+                    layer: self.current_layer,
+                    slices,
+                    superseded: false,
+                });
+            }
+            return;
+        }
         let certs = find_certs(data);
         let unique: HashSet<[u8; 32]> = certs.iter().map(|c| c.sha256_bytes).collect();
         let mut hits = Vec::new();
@@ -486,6 +518,14 @@ impl<'a> Scanner<'a> {
             .collect();
         for (b, f) in self.bundles.iter_mut().zip(flags) {
             b.superseded = f;
+        }
+        let flags: Vec<bool> = self
+            .decoders
+            .iter()
+            .map(|d| d.layer.is_some_and(|l| self.hidden_later(l, &outer(&d.path))))
+            .collect();
+        for (d, f) in self.decoders.iter_mut().zip(flags) {
+            d.superseded = f;
         }
     }
 }

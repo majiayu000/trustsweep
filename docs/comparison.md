@@ -50,3 +50,23 @@ emsign-trust-scan 默认**不**报告 AAA Certificate Services。它的理由是
 - 直接从 registry 拉镜像，不经过 docker。
 - 读取 rpm 数据库来取版本：RPM 系统上的 bundle 能按路径归给 ca-certificates，但版本显示为未知。
 - 读取二进制自身的版本：二进制只按文件名归属，版本显示为未知。
+
+## brotlisweep 与 trailofbits/brotli-checker 的分工（2026-10-24 实查）
+
+[trailofbits/brotli-checker](https://github.com/trailofbits/brotli-checker)（16★，10-23 发布 v0.1.0，10-24 发布 v0.2.0）是一个 coding agent 用的 skill，另附只依赖标准库的 Python 扫描器。它的做法是：比对源码指纹（20 个 decoder 文件哈希，17 个有漏洞、3 个已修复）；用 336 个编译指纹匹配 ELF 二进制里的 decoder 代码，覆盖 x86-64、x86、ARM/Thumb、AArch64、RISC-V64、PowerPC64LE、s390x、MIPS32/64（大小端）、LoongArch64，共 12 个目标；读取依赖清单（pyproject、requirements、uv.lock、Cargo.lock、go.mod 等）；判断 Node/Electron 的 fetch 能否走到 decoder；可选用 objdump 做反汇编复核。它的文档写明"PE, Mach-O, and relocatable objects are not classified by the code matcher"，也就是对 Mac 和 Windows 的二进制只做清点，不判断是否已修。
+
+| 能力 | brotlisweep | brotli-checker |
+|---|---|---|
+| 判断依据 | 修复提交新增的错误码字符串，加上版本证据 | ELF 代码指纹、源码指纹、版本 |
+| ELF（Linux、容器） | 按字符串判断（简单） | ✅ 代码级匹配，**更强，Linux 上优先用它** |
+| Mach-O，含 universal 二进制逐 slice 判断 | ✅ | 只清点，不判断 |
+| Windows PE | ✅ 按内容扫描 | 只清点，不判断 |
+| Electron / Bun / Node / Deno 单文件程序 | ✅ 读二进制里的产品版本（`Electron/`、`bun-v`、`nodejs.org/download/release/v`、`Deno/`），按顺序取，避免被其中附带的 Node 版本误导 | Electron 按 reachability 指南人工复核 |
+| Python Brotli、brotlicffi | ✅ 读已安装的 dist-info 版本，同时判断 `.so` 的每个 slice | 读依赖清单 |
+| "这个 Python 环境会自动发 `Accept-Encoding: br`"提示 | ✅ 同一 site-packages 下有 urllib3、requests、httpx、aiohttp 时给出提示（已对照 urllib3 2.7.0、httpx 0.28.1、aiohttp 3.13.3 的源码确认） | ❌（仓库里检索 urllib3 只命中 uv.lock） |
+| 源码 / 调用链分析 | ❌ | ✅（借助 Trailmark） |
+| 输出 | text、JSON、SARIF，退出码 0/1/2 | text、JSON，退出码 0/1/2/3 |
+
+两者的判定口径都很保守：brotli-checker 不会仅凭版本字符串就把二进制判为已修；brotlisweep 的 FIXED 只代表"修复后新增的字符串在里面"，UNFIXED 必须同时满足"缺标记"和"版本早于修复版本"两个条件。
+
+其它同类工具：shivrajem/node2shell-detect（2★）和 CompleteTech-LLC/node2shell-check（0★）只比对 Node/Bun 的版本号；TahuCryptsi/brotli-distro-check（0★）只看发行版的包版本；ossf/cve-bin-tool 和 syft 的 binary classifier 都没有 brotli 规则（来源：2026-10-24 选题报告）。

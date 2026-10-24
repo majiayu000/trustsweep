@@ -1,0 +1,140 @@
+trustsweep 0.1.0 brotli | CVE-2026-111497 (rules brotli-cve-2026-111497, snapshot 2026-10-24)
+scanned 23109 files, 12 archives, 0 excluded | 25 Brotli decoders found | 0 errors
+
+UNFIXED    /Applications/ExampleApp11.app/Contents/Frameworks/ExampleApp11 Framework.framework/Versions/7.4.0.1015/Helpers/agent_host.app/Contents/MacOS/agent_host
+           decoder without the fix marker, and node 22.14.0 predates the fixed 22.23.4
+           - file: 3 decoder strings, 0 fix markers, node 22.14.0 from embedded string -> Unfixed
+           package: unknown
+           fix: node 22.23.4 or later
+
+UNFIXED    ~/.bun/bin/bun
+           decoder without the fix marker, and bun 1.3.14 predates the fixed 1.4.4
+           - file: 2 decoder strings, 0 fix markers, bun 1.3.14 from embedded string -> Unfixed
+           package: generic bun version unknown  (from executable named bun)
+           fix: bun 1.4.4 or later
+
+UNFIXED    ~/.bun/bin/node
+           decoder without the fix marker, and node 22.15.0 predates the fixed 22.23.4
+           - file: 3 decoder strings, 0 fix markers, node 22.15.0 from embedded string -> Unfixed
+           package: generic node version unknown  (from executable named node)
+           fix: node 22.23.4 or later
+
+UNFIXED    ~/.cache/uv/archive-v0/3iNVxZEwUpLVA1yACaoH7/_brotli.cpython-314-darwin.so
+           decoder without the fix marker, and brotli 1.2.0 predates the fixed 1.2.1
+           - x86_64: 1 decoder strings, 0 fix markers, brotli 1.2.0 from ~/.cache/uv/archive-v0/3iNVxZEwUpLVA1yACaoH7/brotli-1.2.0.dist-info/RECORD -> Unfixed
+           - arm64: 1 decoder strings, 0 fix markers, brotli 1.2.0 from ~/.cache/uv/archive-v0/3iNVxZEwUpLVA1yACaoH7/brotli-1.2.0.dist-info/RECORD -> Unfixed
+           package: pypi brotli 1.2.0  (from ~/.cache/uv/archive-v0/3iNVxZEwUpLVA1yACaoH7/brotli-1.2.0.dist-info/RECORD)
+           fix: brotli 1.2.1 or later
+
+UNFIXED    ~/.cache/uv/archive-v0/_oyjwmNmkPCHy6c1l9Pa6/_brotli.cpython-312-darwin.so
+           decoder without the fix marker, and brotli 1.1.0 predates the fixed 1.2.1
+           - x86_64: 1 decoder strings, 0 fix markers, brotli 1.1.0 from ~/.cache/uv/archive-v0/_oyjwmNmkPCHy6c1l9Pa6/Brotli-1.1.0.dist-info/RECORD -> Unfixed
+           - arm64: 1 decoder strings, 0 fix markers, brotli 1.1.0 from ~/.cache/uv/archive-v0/_oyjwmNmkPCHy6c1l9Pa6/Brotli-1.1.0.dist-info/RECORD -> Unfixed
+           package: pypi Brotli 1.1.0  (from ~/.cache/uv/archive-v0/_oyjwmNmkPCHy6c1l9Pa6/Brotli-1.1.0.dist-info/RECORD)
+           fix: brotli 1.2.1 or later
+
+UNFIXED    ~/.cache/uv/archive-v0/sL4kogjsrboRFHVsEYUeY/_brotli.cpython-312-darwin.so
+           decoder without the fix marker, and brotli 1.2.0 predates the fixed 1.2.1
+           - x86_64: 1 decoder strings, 0 fix markers, brotli 1.2.0 from ~/.cache/uv/archive-v0/sL4kogjsrboRFHVsEYUeY/brotli-1.2.0.dist-info/RECORD -> Unfixed
+           - arm64: 1 decoder strings, 0 fix markers, brotli 1.2.0 from ~/.cache/uv/archive-v0/sL4kogjsrboRFHVsEYUeY/brotli-1.2.0.dist-info/RECORD -> Unfixed
+           package: pypi brotli 1.2.0  (from ~/.cache/uv/archive-v0/sL4kogjsrboRFHVsEYUeY/brotli-1.2.0.dist-info/RECORD)
+           fix: brotli 1.2.1 or later
+
+UNFIXED    ~/.local/bin/example-bun-cli
+           decoder without the fix marker, and bun 1.4.3 predates the fixed 1.4.4
+           - file: 3 decoder strings, 0 fix markers, bun 1.4.3 from embedded string -> Unfixed
+           package: unknown
+           fix: bun 1.4.4 or later
+
+UNKNOWN    /Applications/ExampleApp01.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           decoder without the fix marker; no fixed release listed for electron 35.4.0
+           - file: 1 decoder strings, 0 fix markers, electron 35.4.0 from embedded string -> Unknown
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+UNKNOWN    /Applications/ExampleApp02.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           decoder without the fix marker; no fixed release listed for electron 39.2.3
+           - file: 1 decoder strings, 0 fix markers, electron 39.2.3 from embedded string -> Unknown
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+UNKNOWN    /Applications/ExampleApp05.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           decoder without the fix marker; no fixed release listed for electron 39.2.7
+           - file: 1 decoder strings, 0 fix markers, electron 39.2.7 from embedded string -> Unknown
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+UNKNOWN    /Applications/ExampleApp08.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           decoder without the fix marker; no fixed release listed for electron 39.1.2
+           - file: 1 decoder strings, 0 fix markers, electron 39.1.2 from embedded string -> Unknown
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+UNKNOWN    /Applications/ExampleApp09.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           decoder without the fix marker; no fixed release listed for electron 33.4.11
+           - file: 1 decoder strings, 0 fix markers, electron 33.4.11 from embedded string -> Unknown
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+UNKNOWN    /Applications/ExampleApp11.app/Contents/Frameworks/ExampleApp11 Framework.framework/Versions/6.9.2.881/ExampleApp11 Framework
+           decoder without the fix marker; no fixed release listed for node 20.18.0
+           - file: 1 decoder strings, 0 fix markers, node 20.18.0 from embedded string -> Unknown
+           package: unknown
+
+UNKNOWN    /Applications/ExampleApp11.app/Contents/Frameworks/ExampleApp11 Framework.framework/Versions/6.9.2.881/Resources/app.asar
+           decoder without the fix marker and no version evidence; a missing string alone does not prove the copy is vulnerable
+           - file: 2 decoder strings, 0 fix markers -> Unknown
+           package: unknown
+
+UNKNOWN    /Applications/ExampleApp11.app/Contents/Frameworks/ExampleApp11 Framework.framework/Versions/7.4.0.1015/ExampleApp11 Framework
+           decoder without the fix marker; no fixed release listed for node 20.18.0
+           - file: 1 decoder strings, 0 fix markers, node 20.18.0 from embedded string -> Unknown
+           package: unknown
+
+UNKNOWN    /Applications/ExampleApp11.app/Contents/Frameworks/ExampleApp11 Framework.framework/Versions/7.4.0.1015/Resources/app.asar
+           decoder without the fix marker and no version evidence; a missing string alone does not prove the copy is vulnerable
+           - file: 2 decoder strings, 0 fix markers -> Unknown
+           package: unknown
+
+UNKNOWN    /Applications/ExampleApp12.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           decoder without the fix marker; no fixed release listed for electron 33.4.11
+           - file: 1 decoder strings, 0 fix markers, electron 33.4.11 from embedded string -> Unknown
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+UNKNOWN    /Applications/ExampleApp14.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           decoder without the fix marker; no fixed release listed for electron 37.10.3
+           - file: 1 decoder strings, 0 fix markers, electron 37.10.3 from embedded string -> Unknown
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+UNKNOWN    /opt/homebrew/Cellar/deno/2.9.7/bin/deno
+           decoder without the fix marker; no fixed release listed for deno 2.9.7
+           - file: 3 decoder strings, 0 fix markers, deno 2.9.7 from embedded string -> Unknown
+           package: brew deno 2.9.7  (from Homebrew Cellar path)
+
+FIXED      /Applications/ExampleApp03.app/Contents/Frameworks/ExampleApp03 Framework.framework/Versions/155.0.8059.80/ExampleApp03 Framework
+           fix marker present: the error code added by google/brotli@0ed4268a is compiled in (string evidence, not a code-level proof); more decoder strings than markers, so check whether the file bundles a second decoder copy
+           - file: 2 decoder strings, 1 fix markers, node 24.19.0 from embedded string -> Fixed
+           package: unknown
+
+FIXED      /Applications/ExampleApp04.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           fix marker present: the error code added by google/brotli@0ed4268a is compiled in (string evidence, not a code-level proof); more decoder strings than markers, so check whether the file bundles a second decoder copy
+           - file: 3 decoder strings, 1 fix markers, electron 44.9.0 from embedded string -> Fixed
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+FIXED      /Applications/ExampleApp06.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           fix marker present: the error code added by google/brotli@0ed4268a is compiled in (string evidence, not a code-level proof); more decoder strings than markers, so check whether the file bundles a second decoder copy
+           - file: 3 decoder strings, 1 fix markers, electron 42.11.16 from embedded string -> Fixed
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+FIXED      /Applications/ExampleApp07.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           fix marker present: the error code added by google/brotli@0ed4268a is compiled in (string evidence, not a code-level proof); more decoder strings than markers, so check whether the file bundles a second decoder copy
+           - file: 3 decoder strings, 1 fix markers, electron 42.11.16 from embedded string -> Fixed
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+FIXED      /Applications/ExampleApp10.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           fix marker present: the error code added by google/brotli@0ed4268a is compiled in (string evidence, not a code-level proof); more decoder strings than markers, so check whether the file bundles a second decoder copy
+           - file: 3 decoder strings, 1 fix markers, electron 44.4.4 from embedded string -> Fixed
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+FIXED      /Applications/ExampleApp13.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
+           fix marker present: the error code added by google/brotli@0ed4268a is compiled in (string evidence, not a code-level proof); more decoder strings than markers, so check whether the file bundles a second decoder copy
+           - x86_64: 2 decoder strings, 1 fix markers, electron 43.7.7 from embedded string -> Fixed
+           - arm64: 3 decoder strings, 1 fix markers, electron 43.7.7 from embedded string -> Fixed
+           package: generic electron version unknown  (from executable named Electron Framework)
+
+7 unfixed, 12 unknown, 6 fixed

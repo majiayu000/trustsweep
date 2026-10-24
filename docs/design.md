@@ -107,3 +107,11 @@ argus-archive 是"解压到磁盘"的模型，而且没有发布到 crates.io。
 ## 10. 第一版不做的事
 
 registry 拉取、rpm 数据库、Go buildinfo 解析、asar 和 Flatpak 的专门解析、版本比较、CCADB Removed 报告接入（它不含 PEM，只能按指纹比对，以后可以作为 `root` 角色的补充来源）。
+
+## 11. brotlisweep 子命令（CVE-2026-111497）
+
+- 复用同一套遍历方式（目录、压缩包、镜像层、whiteout）和同一套包归属逻辑，只把"找证书"换成"找 Brotli decoder"。数据放在 `data/brotli.json`，内置进二进制。
+- 每个文件先识别 Mach-O universal 头（`0xcafebabe` / `0xcafebabf`，slice 数少于 30，用来排除 Java class 文件），再对每个 slice 分别统计对照串 `ERROR_FORMAT_EXUBERANT_NIBBLE` 和修复标记 `ERROR_FORMAT_BLOCK_SWITCH`。两种串都没有的文件不报告。
+- 版本证据有两个来源，优先用包元数据（PyPI Brotli、brotlicffi 的 dist-info）。没有包元数据时，读二进制里写的产品版本，按 bun、electron、deno、node 的顺序取第一个匹配的产品，同一产品出现多个版本时取出现次数最多的。修复版本按分支前缀匹配，例如 Node 22 的修复版本是 22.23.4。
+- 判定：有标记就是 fixed；没有标记、且版本早于所在分支的修复版本，才是 unfixed；其余情况都是 unknown。所以"找不到标记"本身永远不会被判成 unfixed。
+- 退出码：存在未被覆盖的 unfixed 时为 1；扫描不完整时为 2；其余为 0。SARIF 用 `brotli-unfixed`（error）和 `brotli-unknown`（warning）两条规则。

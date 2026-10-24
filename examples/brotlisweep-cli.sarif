@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "~/.bun/bin/bun"
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "~/.bun/bin/bun: decoder without the fix marker, and bun 1.3.14 predates the fixed 1.4.4. Package generic bun "
+          },
+          "ruleId": "brotli-unfixed"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "~/.bun/bin/node"
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "~/.bun/bin/node: decoder without the fix marker, and node 22.15.0 predates the fixed 22.23.4. Package generic node "
+          },
+          "ruleId": "brotli-unfixed"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "~/.local/bin/example-bun-cli"
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "~/.local/bin/example-bun-cli: decoder without the fix marker, and bun 1.4.3 predates the fixed 1.4.4"
+          },
+          "ruleId": "brotli-unfixed"
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "~/.cache/uv/archive-v0/_oyjwmNmkPCHy6c1l9Pa6/_brotli.cpython-312-darwin.so"
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "~/.cache/uv/archive-v0/_oyjwmNmkPCHy6c1l9Pa6/_brotli.cpython-312-darwin.so: decoder without the fix marker, and brotli 1.1.0 predates the fixed 1.2.1. Package pypi Brotli 1.1.0"
+          },
+          "ruleId": "brotli-unfixed"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "trustsweep",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "id": "brotli-unfixed",
+              "shortDescription": {
+                "text": "Brotli decoder without the CVE-2026-111497 fix marker, from a release older than the fix"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "id": "brotli-unknown",
+              "shortDescription": {
+                "text": "Brotli decoder whose CVE-2026-111497 fix status cannot be determined"
+              }
+            }
+          ],
+          "version": "0.1.0"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}

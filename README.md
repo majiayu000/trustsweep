@@ -27,6 +27,27 @@ trustsweep feed update                                    # refresh revoked-CA d
 
 Exit code `1` means a live CA bundle still trusts a revoked CA. Exit code `2` means the scan was incomplete or failed. Exit code `0` means neither.
 
+## brotlisweep: embedded Brotli decoders (CVE-2026-111497)
+
+`trustsweep brotlisweep` looks for copies of the Brotli decoder affected by CVE-2026-111497 ("Node2Shell" / "HTTP2Shell") that are bundled inside Mach-O (including each slice of a universal binary), PE and ELF files, Electron frameworks, Bun/Node/Deno single-file programs, and Python Brotli/brotlicffi wheels.
+
+```bash
+trustsweep brotlisweep /Applications ~/.bun/bin ~/.local/bin .venv
+trustsweep brotlisweep --image node:22 --format sarif -o brotli.sarif
+```
+
+Each decoder copy gets one of three results:
+
+- **FIXED**: the string `ERROR_FORMAT_BLOCK_SWITCH`, the error code added by the fix [google/brotli@0ed4268a](https://github.com/google/brotli/commit/0ed4268a4401abcb4472096340477cf4af7d1a2b), is compiled in. This is string evidence, not a code-level proof.
+- **UNFIXED**: the marker is missing **and** a version string or package metadata shows a release older than its branch fix (Node 22.23.4 / 24.22.1 / 26.12.1, Bun 1.4.4, PyPI Brotli 1.2.1, brotlicffi 1.2.1.0).
+- **UNKNOWN**: the marker is missing and nothing proves the version is old. A missing string alone is never reported as vulnerable.
+
+For a Python Brotli package, it also lists any urllib3, requests, httpx or aiohttp installed next to it. These clients send `Accept-Encoding: br` whenever `brotli` or `brotlicffi` can be imported, which makes the decoder reachable from ordinary HTTP requests.
+
+On Linux and in containers, also run [trailofbits/brotli-checker](https://github.com/trailofbits/brotli-checker). It matches the decoder's compiled code in ELF binaries across 12 architecture targets (x86-64, AArch64, RISC-V64, MIPS and more) and checks source fingerprints, which is much stronger evidence than a string. Its documentation says PE and Mach-O are not classified, and that is the gap brotlisweep covers.
+
+Real run on a Mac ([examples/brotlisweep-macos.txt](examples/brotlisweep-macos.txt)): 25 decoders. 7 were UNFIXED (bun 1.3.14, node 22.15.0, a single-file CLI with embedded Bun 1.4.3, a Node 22.14.0 helper inside a Chromium-based browser, three cached Brotli 1.1.0/1.2.0 wheels), 12 UNKNOWN (five Electron 33–39 apps, Deno 2.9.7, the browser's own framework) and 6 FIXED (five Electron 42+ apps and one Chromium-based framework). App names in the example are replaced with ExampleApp01–14.
+
 ## Real output
 
 `trustsweep image python:3.12-alpine` (`sha256:4c47124a8391…`, 2026-10-22):
@@ -62,7 +83,7 @@ TRUSTS     ~/.local/bin/uv
            fix: upgrade to 0.13.4 (https://github.com/astral-sh/uv/releases/tag/0.13.4)
 ```
 
-The scans in [`examples/`](examples/) found affected bundles in certifi 2026.2.25, grpcio 1.78.0 (which ships its own `roots.pem`), a lancedb native Node addon, bun 1.3.14, node 22.15, deno 2.9.7, uv 0.9.21, Claude Code 2.1.300, Temurin JRE 21.0.12 and `python:3.12-alpine`.
+The scans in [`examples/`](examples/) found affected bundles in certifi 2026.2.25, grpcio 1.78.0 (which ships its own `roots.pem`), a lancedb native Node addon, bun 1.3.14, node 22.15, deno 2.9.7, uv 0.9.21, a Bun-built single-file CLI, Temurin JRE 21.0.12 and `python:3.12-alpine`.
 
 ## How it compares
 
