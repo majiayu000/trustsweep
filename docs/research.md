@@ -139,3 +139,13 @@
 2. trustsweep 需要的是"逐条目读进内存、嵌套递归、不落盘"，而 argus-archive 是"解压到目录"的模型。
 
 所以第一版不直接依赖 argus，只沿用它的思路：条目数和大小上限，以及不跟随符号链接。见 design.md §8。
+
+## 5. 后续的一手报告（2026-10-29 核对原文）
+
+| 来源 | 内容 |
+|---|---|
+| [Apple Support 149555](https://support.apple.com/en-us/149555)（2026-10-23 发布） | Apple 从 10-19 起在设备上拦截这 12 张证书（6 个 TLS 中间 CA，每个两张），10-23 起也拦截 emSign ECC Root CA - G3。macOS 和 Xcode Command Line Tools 自带的 curl、git 等工具读的是 `/etc/ssl/cert.pem`，在后续软件更新之前仍可能接受这些证书 |
+| [Cloudflare changelog 2026-10-22](https://developers.cloudflare.com/changelog/post/2026-10-22-emudhra-certificates/) | 原文为 "Sandbox SDK images before 0.12.14 trust these certificates"。0.x 的修复版本是 `@cloudflare/sandbox@0.12.14`，next 通道是 0.13.0-next.825.1；1.x 的 SDK 不用改，但需要重建镜像 |
+| [keycloak/keycloak#54197](https://github.com/keycloak/keycloak/issues/54197)（10-20 开，10-23 以 not planned 关闭） | 维护者认为信任库由 JDK 提供，不属于 Keycloak 的职责。评论者 Esurnir 实测：已发布的 `quay.io/keycloak/keycloak:26.7.3`（9-14 构建）信任全部 7 条经 emSign ECC Root CA - G3 的链；用 `--pull` 重建后，镜像带上 ca-certificates-2026.2.92_v9.0.319-90.3.el9_8（NSS 3.131.1），14 条链全部被拒；另说 26.8.1-1 已不受影响 |
+
+另外，接手时得到的说法是"keycloak:26.7.3 镜像"，与 issue 正文写的版本（26.8.1）不一致。核对后确认，26.7.3 出自评论中的实测，正文里的 26.8.1 是报告者使用的版本。

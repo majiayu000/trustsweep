@@ -15,7 +15,7 @@
   },
   "findings": [
     {
-      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem",
+      "path": "~/projects/example-py/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem",
       "verdict": "trusts",
       "reason": "trust store contains a root that issued or cross-signed a revoked CA",
       "superseded": false,
@@ -46,12 +46,12 @@
         "ecosystem": "pypi",
         "name": "grpcio",
         "version": "1.78.0",
-        "evidence": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpcio-1.78.0.dist-info/RECORD"
+        "evidence": "~/projects/example-py/.venv/lib/python3.11/site-packages/grpcio-1.78.0.dist-info/RECORD"
       },
       "fix": null
     },
     {
-      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem",
+      "path": "~/projects/example-py/.venv/lib/python3.11/site-packages/certifi/cacert.pem",
       "verdict": "trusts",
       "reason": "trust store contains a root that issued or cross-signed a revoked CA",
       "superseded": false,
@@ -72,7 +72,7 @@
         "ecosystem": "pypi",
         "name": "certifi",
         "version": "2026.2.25",
-        "evidence": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi-2026.2.25.dist-info/RECORD"
+        "evidence": "~/projects/example-py/.venv/lib/python3.11/site-packages/certifi-2026.2.25.dist-info/RECORD"
       },
       "fix": {
         "ecosystem": "pypi",
@@ -86,17 +86,17 @@
   ],
   "bundles": [
     {
-      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem",
+      "path": "~/projects/example-py/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem",
       "certs": 130,
       "superseded": false
     },
     {
-      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem",
+      "path": "~/projects/example-py/.venv/lib/python3.11/site-packages/certifi/cacert.pem",
       "certs": 137,
       "superseded": false
     },
     {
-      "path": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/future/backports/test/sha256.pem",
+      "path": "~/projects/example-py/.venv/lib/python3.11/site-packages/future/backports/test/sha256.pem",
       "certs": 4,
       "superseded": false
     }

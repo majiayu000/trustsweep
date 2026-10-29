@@ -9,7 +9,7 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem"
+                  "uri": "~/projects/example-py/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem"
                 },
                 "region": {
                   "byteLength": 1516,
@@ -19,7 +19,7 @@
             }
           ],
           "message": {
-            "text": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem: AAA Certificate Services (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi grpcio 1.78.0"
+            "text": "~/projects/example-py/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem: AAA Certificate Services (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi grpcio 1.78.0"
           },
           "partialFingerprints": {
             "certificate": "D7A7A0FB5D7E2731D771E9484EBCDEF71D5F0C3E0A2948782BC83EE0EA699EF4"
@@ -32,7 +32,7 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem"
+                  "uri": "~/projects/example-py/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem"
                 },
                 "region": {
                   "byteLength": 858,
@@ -42,7 +42,7 @@
             }
           ],
           "message": {
-            "text": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem: emSign ECC Root CA - G3 (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi grpcio 1.78.0"
+            "text": "~/projects/example-py/.venv/lib/python3.11/site-packages/grpc/_cython/_credentials/roots.pem: emSign ECC Root CA - G3 (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi grpcio 1.78.0"
           },
           "partialFingerprints": {
             "certificate": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"
@@ -55,7 +55,7 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem"
+                  "uri": "~/projects/example-py/.venv/lib/python3.11/site-packages/certifi/cacert.pem"
                 },
                 "region": {
                   "byteLength": 858,
@@ -65,7 +65,7 @@
             }
           ],
           "message": {
-            "text": "~/Desktop/code/AI/media/.venv/lib/python3.11/site-packages/certifi/cacert.pem: emSign ECC Root CA - G3 (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi certifi 2026.2.25, upgrade to 2026.10.19"
+            "text": "~/projects/example-py/.venv/lib/python3.11/site-packages/certifi/cacert.pem: emSign ECC Root CA - G3 (feed). trust store contains a root that issued or cross-signed a revoked CA. Package pypi certifi 2026.2.25, upgrade to 2026.10.19"
           },
           "partialFingerprints": {
             "certificate": "86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B"

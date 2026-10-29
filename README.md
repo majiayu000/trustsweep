@@ -6,15 +6,30 @@
 
 **trustsweep scans venvs, node_modules, wheels, jars, container images and single-file binaries for bundled CA certificate stores (certifi, pip, Node, Bun, Deno, uv, Java cacerts, Alpine/Debian ca-certificates) that still trust a revoked CA, such as the October 2026 eMudhra intermediate CA compromise (CVE-2026-111943), and tells you which package to upgrade.**
 
-Patching the OS trust store does not reach the copies of the CA bundle that pip, Node, Bun, Deno, uv, Java and many SDKs ship themselves. Vulnerability scanners that work from an SBOM or lockfile only catch packages that have an advisory, such as certifi or webpki-roots. trustsweep reads the bytes instead. It finds PEM, DER, JKS, PKCS#12, escaped source literals and the bare root keys that webpki-roots compiles into Rust binaries, and matches them against the incident data and Mozilla OneCRL. It runs offline as a single binary.
+Patching the OS trust store does not reach the copies of the CA bundle that pip, Node, Bun, Deno, uv, Java and many SDKs ship themselves. Vulnerability scanners that work from an SBOM or lockfile only catch packages that have an advisory, such as certifi or webpki-roots. trustsweep reads the bytes instead. It finds PEM, DER, JKS, PKCS#12, escaped source literals and the bare root keys that webpki-roots compiles into Rust binaries, and matches them against Mozilla OneCRL, the CCADB list of roots Mozilla removed, and incident data. It runs offline as a single binary; container images can be pulled straight from a registry.
 
 ## Install
 
-Download a prebuilt binary (macOS arm64, macOS x86_64 or Linux x86_64) from [Releases](https://github.com/majiayu000/trustsweep/releases/latest), or build it with cargo:
-
 ```bash
-cargo install --git https://github.com/majiayu000/trustsweep
+cargo install trustsweep
 ```
+
+Or download a prebuilt binary (macOS arm64, macOS x86_64 or Linux x86_64) from [Releases](https://github.com/majiayu000/trustsweep/releases/latest).
+
+## New in 0.2.0
+
+- **`trustsweep image <ref>` pulls directly from registries** (Docker Hub, ghcr.io, gcr.io and other OCI Distribution registries) without a local docker. It picks the platform from multi-arch images (`--platform`), checks every manifest and layer against its sha256, and reads gzip and zstd layers. OCI layout directories and `docker save` tarballs still work, and `--docker` keeps the old route.
+- **`trustsweep feed update` rebuilds the whole revoked-CA feed** from Mozilla OneCRL (1262 revoked intermediates), the CCADB report of roots Mozilla removed (106 unexpired roots) and incident data (eMudhra). This makes trustsweep useful beyond one incident.
+- **`trustsweep brotlisweep`** checks embedded Brotli decoders for the CVE-2026-111497 fix in Mach-O (per universal slice), PE and ELF binaries, Electron, Bun, Node and Deno programs, and Python Brotli wheels (see below).
+- Certificates in escaped source literals (webpki-root-certs, C strings, `xxd -i` arrays), distroless `status.d` and RPM-distro bundle attribution.
+
+## Why bundled copies matter: reports from the field
+
+- **macOS:** Apple blocked the 12 compromised intermediate certificates on its devices from 19 October 2026 and emSign ECC Root CA - G3 from 23 October. It also notes that tools shipped with macOS, like curl and git, check `/etc/ssl/cert.pem` and can still accept these certificates until a later software update ([Apple Support 149555](https://support.apple.com/en-us/149555)).
+- **Cloudflare Sandbox SDK:** "Sandbox SDK images before 0.12.14 trust these certificates" ([Cloudflare changelog, 2026-10-22](https://developers.cloudflare.com/changelog/post/2026-10-22-emudhra-certificates/)).
+- **Keycloak:** the report that the official image trusts the compromised chains was closed as not planned, because Keycloak relies on the JDK and OS trust store. A commenter verified that the published `quay.io/keycloak/keycloak:26.7.3` still trusts all 7 chains through emSign ECC Root CA - G3 ([keycloak/keycloak#54197](https://github.com/keycloak/keycloak/issues/54197)).
+
+These are exactly the copies that an OS update does not reach and that trustsweep finds by content.
 
 ## Usage
 
