@@ -11,7 +11,7 @@ Patching the OS trust store does not reach the copies of the CA bundle that pip,
 ## Install
 
 ```bash
-cargo install trustsweep
+brew install majiayu000/tap/trustsweep   # or: cargo install trustsweep
 ```
 
 Or download a prebuilt binary (macOS arm64, macOS x86_64 or Linux x86_64) from [Releases](https://github.com/majiayu000/trustsweep/releases/latest).
