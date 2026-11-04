@@ -47,6 +47,18 @@ pub struct Finding {
     pub matches: Vec<MatchOut>,
     pub owner: Option<Owner>,
     pub fix: Option<Fix>,
+    /// The owner's version is already at or above a listed fixed release, yet the file is not clean.
+    pub at_or_above_fix: bool,
+}
+
+/// Whether `version` is at or above a fixed release on its branch (same first component),
+/// or above any listed release when no branch matches. Unparsable versions never count.
+pub fn at_or_above(version: &str, fixed: &[String]) -> bool {
+    let major = |v: &str| v.split('.').next().unwrap_or("").to_string();
+    let same: Vec<&String> = fixed.iter().filter(|f| major(f) == major(version)).collect();
+    let pool: Vec<&String> = if same.is_empty() { fixed.iter().collect() } else { same };
+    pool.iter()
+        .any(|f| crate::brotli::compare(version, f).is_some_and(|o| o != std::cmp::Ordering::Less))
 }
 
 #[derive(Debug, Serialize)]
@@ -106,6 +118,10 @@ impl Report {
                 };
                 let owner = attribute(&f.path, &scanner.store, &m.binaries);
                 let fix = owner.as_ref().and_then(|o| m.fix_for(&o.ecosystem, &o.name)).cloned();
+                let at_or_above_fix = match (&owner, &fix) {
+                    (Some(o), Some(f)) => o.version.as_deref().is_some_and(|v| at_or_above(v, &f.fixed)),
+                    _ => false,
+                };
                 Finding {
                     path: f.path.clone(),
                     layer: f.layer,
@@ -117,6 +133,7 @@ impl Report {
                     matches,
                     owner,
                     fix,
+                    at_or_above_fix,
                 }
             })
             .collect();
@@ -210,6 +227,13 @@ impl Report {
                 }
             }
             match &x.fix {
+                Some(fix) if x.at_or_above_fix => {
+                    let _ = writeln!(
+                        s,
+                        "           fix: already at or above the listed fixed release ({}) but still not clean: upgrade to the latest release or review manually",
+                        fix.fixed.join(" / ")
+                    );
+                }
                 Some(fix) if fix.fixed.is_empty() => {
                     let _ = writeln!(s, "           fix: no fixed release yet ({})", fix.source);
                 }
@@ -256,7 +280,9 @@ impl Report {
                     if let Some(o) = &x.owner {
                         let _ = write!(msg, ". Package {} {} {}", o.ecosystem, o.name, o.version.as_deref().unwrap_or(""));
                     }
-                    if let Some(fix) = x.fix.as_ref().filter(|f| !f.fixed.is_empty()) {
+                    if x.at_or_above_fix {
+                        let _ = write!(msg, ", already at or above the listed fixed release but still not clean: upgrade to the latest release or review manually");
+                    } else if let Some(fix) = x.fix.as_ref().filter(|f| !f.fixed.is_empty()) {
                         let _ = write!(msg, ", upgrade to {}", fix.fixed.join(" / "));
                     }
                     let region = if x.path.contains("!/") {

@@ -5285,7 +5285,7 @@
       "bug": "2027847"
     },
     {
-      "name": "AC Raíz Certicámara S.A.",
+      "name": "AC Ra\u00edz Certic\u00e1mara S.A.",
       "sha256": "A6C51E0DA5CA0A9309D2E4C0E40C2AF9107AAE8203857FE198E3E769E343085C",
       "nss_removed": "NSS 3.41",
       "valid_to": "2030-04-02",
@@ -5467,7 +5467,7 @@
       "bug": "https://bugzilla.mozilla.org/show_bug.cgi?id=1288250"
     },
     {
-      "name": "VeriSign Class 1 Public PCA – G2",
+      "name": "VeriSign Class 1 Public PCA \u2013 G2",
       "sha256": "341DE98B1392ABF7F4AB90A960CF25D4BD6EC65B9A51CE6ED067D00EC7CE9B7F",
       "nss_removed": "NSS 3.23",
       "valid_to": "2028-08-01",
@@ -5502,7 +5502,7 @@
       "bug": "https://bugzilla.mozilla.org/show_bug.cgi?id=1288250"
     },
     {
-      "name": "VeriSign Class 3 Public PCA – G2",
+      "name": "VeriSign Class 3 Public PCA \u2013 G2",
       "sha256": "83CE3C1229688A593D485F81973C0F9195431EDA37CC5E36430E79C7A888638B",
       "nss_removed": "NSS 3.23",
       "valid_to": "2028-08-01",
@@ -5558,7 +5558,7 @@
       "bug": "https://bugzilla.mozilla.org/show_bug.cgi?id=1421810"
     },
     {
-      "name": "Certinomis - Autorité Racine",
+      "name": "Certinomis - Autorit\u00e9 Racine",
       "sha256": "FCBFE2886206F72B27593C8B070297E12D769ED10ED7930705A8098EFFC14D17",
       "nss_removed": "NSS 3.34",
       "valid_to": "2028-09-17",
@@ -5922,7 +5922,7 @@
       "bug": "https://bugzilla.mozilla.org/show_bug.cgi?id=1387260"
     },
     {
-      "name": "CA 沃通根证书",
+      "name": "CA \u6c83\u901a\u6839\u8bc1\u4e66",
       "sha256": "D6F034BD94AA233F0297ECA4245B283973E447AA590F310C77F48FDF83112254",
       "nss_removed": "NSS 3.34",
       "valid_to": "2039-08-08",
@@ -5948,17 +5948,19 @@
       "ecosystem": "pypi",
       "name": "certifi",
       "fixed": [
-        "2026.10.19"
+        "2026.10.23"
       ],
-      "source": "https://github.com/certifi/python-certifi/releases/tag/2026.10.19"
+      "source": "https://github.com/certifi/python-certifi/releases/tag/2026.10.23",
+      "verified": "2026-11-05: wheels scanned. 2026.10.18 is clean, but 2026.10.19 added emSign Root CA - C1, emSign ECC Root CA - C3 and G1 back (REVIEW); 2026.10.23 is clean and the latest. GHSA-6q48-6c7w-9gw2 names 2026.10.18, which 2026.10.19 undid."
     },
     {
       "ecosystem": "pypi",
       "name": "pip",
       "fixed": [
-        "26.2.2"
+        "26.3"
       ],
-      "source": "https://github.com/pypa/pip/releases/tag/26.2.2"
+      "source": "https://github.com/pypa/pip/blob/26.3/src/pip/_vendor/vendor.txt",
+      "verified": "2026-11-05: wheels scanned. 26.2.2 vendors certifi 2026.10.19 (REVIEW: emSign C1/C3); 26.3 vendors certifi 2026.10.23 and is clean."
     },
     {
       "ecosystem": "pypi",
@@ -5966,7 +5968,8 @@
       "fixed": [
         "0.13.4"
       ],
-      "source": "https://github.com/astral-sh/uv/releases/tag/0.13.4"
+      "source": "https://github.com/astral-sh/uv/releases/tag/0.13.4",
+      "verified": "2026-11-05: macOS arm64 wheels 0.13.4 to 0.13.7 scanned. emSign ECC Root CA - G3 is gone from 0.13.4, but every release up to 0.13.7 still contains emSign Root CA - C1 and emSign ECC Root CA - C3, which Mozilla removed in NSS 3.131, so a scan reports REVIEW. No fully clean release yet."
     },
     {
       "ecosystem": "generic",
@@ -5974,33 +5977,37 @@
       "fixed": [
         "0.13.4"
       ],
-      "source": "https://github.com/astral-sh/uv/releases/tag/0.13.4"
+      "source": "https://github.com/astral-sh/uv/releases/tag/0.13.4",
+      "verified": "2026-11-05: same binary as the PyPI wheel. 0.13.4 to 0.13.7 drop emSign ECC Root CA - G3 but still contains emSign Root CA - C1 and emSign ECC Root CA - C3, which Mozilla removed in NSS 3.131, so a scan reports REVIEW. No fully clean release yet."
     },
     {
       "ecosystem": "generic",
       "name": "pixi",
       "fixed": [
-        "0.82.1"
+        "0.84.0"
       ],
-      "source": "https://github.com/prefix-dev/pixi/releases/tag/v0.82.1"
+      "source": "https://github.com/prefix-dev/pixi/releases/tag/v0.84.0",
+      "verified": "2026-11-05: macOS arm64 builds scanned. 0.82.1 and 0.83.0 still contains emSign Root CA - C1 and emSign ECC Root CA - C3, which Mozilla removed in NSS 3.131, so a scan reports REVIEW; 0.84.0 and 0.84.1 are clean (they embed the rustls-webpki distrust list, which is not reported)."
     },
     {
       "ecosystem": "cargo",
       "name": "webpki-roots",
       "fixed": [
-        "1.0.10",
+        "1.0.11",
         "0.26.11"
       ],
-      "source": "https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.10"
+      "source": "https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.11",
+      "verified": "2026-11-05: crates scanned. 1.0.10 still contains emSign Root CA - C1 and emSign ECC Root CA - C3, which Mozilla removed in NSS 3.131, so a scan reports REVIEW; 1.0.11 is clean. 0.26.11 is a shim with no roots of its own that re-exports 1.x."
     },
     {
       "ecosystem": "cargo",
       "name": "webpki-root-certs",
       "fixed": [
-        "1.0.10",
+        "1.0.11",
         "0.26.11"
       ],
-      "source": "https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.10"
+      "source": "https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.11",
+      "verified": "2026-11-05: crates scanned. 1.0.10 still contains emSign Root CA - C1 and emSign ECC Root CA - C3, which Mozilla removed in NSS 3.131, so a scan reports REVIEW; 1.0.11 is clean. 0.26.11 is a shim with no roots of its own."
     },
     {
       "ecosystem": "cargo",
@@ -6008,7 +6015,8 @@
       "fixed": [
         "0.103.16"
       ],
-      "source": "https://github.com/rustls/webpki/releases/tag/v%2F0.103.16"
+      "source": "https://github.com/rustls/webpki/releases/tag/v%2F0.103.16",
+      "verified": "2026-11-05: crate scanned, clean. It ships src/data/distrusted/*.spki.der with the 8 compromised intermediate keys: the fix is this distrust list, not a root change."
     },
     {
       "ecosystem": "generic",
@@ -6016,7 +6024,8 @@
       "fixed": [
         "1.29.2"
       ],
-      "source": "https://blog.rust-lang.org/2026/10/20/Rustup-1.29.2/"
+      "source": "https://blog.rust-lang.org/2026/10/20/Rustup-1.29.2/",
+      "verified": "2026-11-05: aarch64-apple-darwin rustup-init scanned, clean."
     },
     {
       "ecosystem": "generic",
@@ -6026,7 +6035,8 @@
         "24.22.1",
         "26.12.1"
       ],
-      "source": "https://github.com/nodejs/node/releases/tag/v24.22.1"
+      "source": "https://github.com/nodejs/node/releases/tag/v24.22.1",
+      "verified": "2026-11-05: darwin-arm64 tarballs scanned. 24.22.1 and 26.12.1 are clean. 22.23.4 has no eMudhra roots but still contains ePKI Root Certification Authority (removed by Mozilla in NSS 3.126), so it scans as REVIEW; it is the newest 22.x."
     },
     {
       "ecosystem": "npm",
@@ -6036,7 +6046,8 @@
         "43.8.1",
         "42.11.16"
       ],
-      "source": "https://github.com/electron/electron/releases/tag/v44.9.1"
+      "source": "https://github.com/electron/electron/releases/tag/v44.9.1",
+      "verified": "2026-11-05: darwin-arm64 zips scanned, not verifiable by content. 44.9.1 and 43.8.1 still contain emSign ECC Root CA - G3 and AAA Certificate Services; Chromium blocks the intermediates in code. All three also carry roots Mozilla removed (Chromium has its own root program), so they scan as REVIEW."
     },
     {
       "ecosystem": "generic",
@@ -6046,13 +6057,17 @@
         "43.8.1",
         "42.11.16"
       ],
-      "source": "https://github.com/electron/electron/releases/tag/v44.9.1"
+      "source": "https://github.com/electron/electron/releases/tag/v44.9.1",
+      "verified": "2026-11-05: same as the npm entry: not verifiable by content, the fix is Chromium's intermediate blocklist."
     },
     {
       "ecosystem": "generic",
       "name": "bun",
-      "fixed": [],
-      "source": "https://github.com/oven-sh/bun/pull/46159"
+      "fixed": [
+        "1.4.4"
+      ],
+      "source": "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.4",
+      "verified": "2026-11-05: bun-darwin-aarch64 1.4.4 scanned, clean (root_certs.der regenerated by oven-sh/bun#46159)."
     },
     {
       "ecosystem": "generic",
@@ -6060,31 +6075,35 @@
       "fixed": [
         "2.9.8"
       ],
-      "source": "https://github.com/denoland/deno/releases/tag/v2.9.8"
+      "source": "https://github.com/denoland/deno/releases/tag/v2.9.8",
+      "verified": "2026-11-05: deno-aarch64-apple-darwin 2.9.8 (the latest) scanned. emSign ECC Root CA - G3 is gone and the rustls-webpki distrust list is present, but it still contains emSign Root CA - C1 and emSign ECC Root CA - C3, which Mozilla removed in NSS 3.131, so a scan reports REVIEW."
     },
     {
       "ecosystem": "generic",
       "name": "claude-code",
       "fixed": [
-        "2.1.303"
+        "2.1.304"
       ],
-      "source": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#21303"
+      "source": "https://registry.npmjs.org/@anthropic-ai/claude-code/2.1.304",
+      "verified": "2026-11-05: darwin-arm64 native binaries scanned. 2.1.303, named by the incident page, still contains emSign ECC Root CA - G3 (its changelog entry only says bug fixes); 2.1.304, 2.1.305, 2.1.307, 2.1.311 and 2.1.318 are clean."
     },
     {
       "ecosystem": "npm",
       "name": "@anthropic-ai/claude-code",
       "fixed": [
-        "2.1.303"
+        "2.1.304"
       ],
-      "source": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#21303"
+      "source": "https://registry.npmjs.org/@anthropic-ai/claude-code/2.1.304",
+      "verified": "2026-11-05: the npm package holds no CA bundle; the native binary it installs is clean from 2.1.304 (2.1.303 still contains emSign ECC Root CA - G3)."
     },
     {
       "ecosystem": "generic",
       "name": "mise",
       "fixed": [
-        "2026.10.17"
+        "2026.10.22"
       ],
-      "source": "https://github.com/jdx/mise/releases/tag/v2026.10.17"
+      "source": "https://github.com/jdx/mise/releases/tag/v2026.10.22",
+      "verified": "2026-11-05: macOS arm64 builds 2026.10.17 to 2026.11.0 scanned. Up to 2026.10.21 they still contains emSign Root CA - C1 and emSign ECC Root CA - C3, which Mozilla removed in NSS 3.131, so a scan reports REVIEW; from 2026.10.22 they are clean."
     },
     {
       "ecosystem": "generic",
@@ -6093,7 +6112,8 @@
         "1.27.3",
         "1.26.10"
       ],
-      "source": "https://groups.google.com/g/golang-announce/c/66pojueaQek"
+      "source": "https://groups.google.com/g/golang-announce/c/66pojueaQek",
+      "verified": "2026-11-05: source tarballs checked. crypto/x509/verify.go in go1.27.3 and go1.26.10 has distrustedSPKIHashes with the 8 compromised intermediate keys. A code fix, so no bundle to scan."
     },
     {
       "ecosystem": "java",
@@ -6106,7 +6126,8 @@
         "11.0.33",
         "8u511"
       ],
-      "source": "https://emudhra.we-have-a-problem.com/#developers"
+      "source": "https://emudhra.we-have-a-problem.com/#developers",
+      "verified": "2026-11-05: Temurin JREs 17.0.21, 21.0.13, 25.0.5 and 27.0.1.0.2 (linux x64) scanned, clean. 11.0.33 and 8u511 have no Temurin build yet: not verified with an artifact."
     },
     {
       "ecosystem": "deb",
@@ -6120,13 +6141,15 @@
         "20260816ubuntu0.26.04.1",
         "20260816ubuntu0.26.10.1"
       ],
-      "source": "https://emudhra.we-have-a-problem.com/#developers"
+      "source": "https://emudhra.we-have-a-problem.com/#developers",
+      "verified": "2026-11-05: .deb packages scanned. None ships emSign ECC Root CA - G3 or AAA Certificate Services. 20250419~deb12u2 and 20250419+deb13u1 still ship 23 roots Mozilla removed later; 20260816+nmu1 and the four 20260816ubuntu0.* builds still ship emSign C1 and C3. All scan as REVIEW; each is the newest in its suite."
     },
     {
       "ecosystem": "deb",
       "name": "ca-certificates-java",
       "fixed": [],
-      "source": "https://emudhra.we-have-a-problem.com/#developers (not listed; regenerated from ca-certificates)"
+      "source": "https://emudhra.we-have-a-problem.com/#developers (not listed; regenerated from ca-certificates)",
+      "verified": "not verified with an artifact: no fixed release is listed."
     },
     {
       "ecosystem": "apk",
@@ -6134,7 +6157,8 @@
       "fixed": [
         "20261020-r0"
       ],
-      "source": "https://emudhra.we-have-a-problem.com/#developers"
+      "source": "https://emudhra.we-have-a-problem.com/#developers",
+      "verified": "2026-11-05: 20261020-r0 apk from edge, v3.22, v3.21 and v3.20 (aarch64) scanned, clean."
     },
     {
       "ecosystem": "apk",
@@ -6142,15 +6166,17 @@
       "fixed": [
         "20261020-r0"
       ],
-      "source": "https://emudhra.we-have-a-problem.com/#developers"
+      "source": "https://emudhra.we-have-a-problem.com/#developers",
+      "verified": "2026-11-05: 20261020-r0 apk from edge, v3.22, v3.21 and v3.20 (aarch64) scanned, clean."
     },
     {
       "ecosystem": "brew",
       "name": "ca-certificates",
       "fixed": [
-        "2026-09-25_1"
+        "2026-10-20"
       ],
-      "source": "https://github.com/Homebrew/homebrew-core/blob/d02b8762f4a29859c47a635a0d2683223fea9812/Formula/c/ca-certificates.rb"
+      "source": "https://github.com/Homebrew/homebrew-core/blob/HEAD/Formula/c/ca-certificates.rb",
+      "verified": "2026-11-05: checked through the formula, bottles not downloaded. 2026-09-25_1 drops the three incident roots by SPKI from curl's 2026-09-25 bundle, which still has emSign C1 and C3 (REVIEW); 2026-10-20 is built from curl's 2026-10-20 bundle, which scans clean."
     },
     {
       "ecosystem": "hex",
@@ -6158,13 +6184,17 @@
       "fixed": [
         "1.0.22"
       ],
-      "source": "https://hex.pm/packages/castore/1.0.22"
+      "source": "https://hex.pm/packages/castore/1.0.22",
+      "verified": "2026-11-05: hex tarball 1.0.22 scanned, clean."
     },
     {
       "ecosystem": "hex",
       "name": "certifi",
-      "fixed": [],
-      "source": "https://github.com/certifi/erlang-certifi/pull/56"
+      "fixed": [
+        "2.18.0"
+      ],
+      "source": "https://hex.pm/packages/certifi/2.18.0",
+      "verified": "2026-11-05: hex tarball 2.18.0 (2026-10-23, after certifi/erlang-certifi#56) scanned, clean."
     },
     {
       "ecosystem": "packagist",
@@ -6173,7 +6203,8 @@
         "1.4.16",
         "1.6.0"
       ],
-      "source": "https://github.com/composer/ca-bundle/pull/154"
+      "source": "https://github.com/composer/ca-bundle/pull/154",
+      "verified": "2026-11-05: GitHub archives of 1.4.16 and 1.6.0 scanned, clean."
     },
     {
       "ecosystem": "cpan",
@@ -6181,7 +6212,8 @@
       "fixed": [
         "20261020"
       ],
-      "source": "https://metacpan.org/release/LWP/Mozilla-CA-20261020"
+      "source": "https://metacpan.org/release/LWP/Mozilla-CA-20261020",
+      "verified": "2026-11-05: CPAN tarball 20261020 (the latest) scanned. No eMudhra roots, but it still contains emSign Root CA - C1 and emSign ECC Root CA - C3, which Mozilla removed in NSS 3.131, so a scan reports REVIEW."
     },
     {
       "ecosystem": "generic",
@@ -6189,7 +6221,8 @@
       "fixed": [
         "3.131.1"
       ],
-      "source": "https://emudhra.we-have-a-problem.com/#developers"
+      "source": "https://emudhra.we-have-a-problem.com/#developers",
+      "verified": "2026-11-05: certdata.txt at NSS_3_131_1_RTM checked by label (trustsweep does not parse certdata.txt): emSign Root CA - G1 is the only emSign root left and AAA Certificate Services is absent."
     },
     {
       "ecosystem": "generic",
@@ -6197,7 +6230,8 @@
       "fixed": [
         "2026-10-20"
       ],
-      "source": "https://curl.se/docs/caextract.html"
+      "source": "https://curl.se/docs/caextract.html",
+      "verified": "2026-11-05: cacert-2026-10-20.pem scanned, clean."
     },
     {
       "ecosystem": "rpm",
@@ -6205,7 +6239,8 @@
       "fixed": [
         "2026.2.92_v9.0.319 (Fedora)"
       ],
-      "source": "https://bugzilla.redhat.com/show_bug.cgi?id=2556376"
+      "source": "https://bugzilla.redhat.com/show_bug.cgi?id=2556376",
+      "verified": "2026-11-05: Fedora 44, 45 and 46 noarch RPMs of 2026.2.92_v9.0.319-2 scanned. emSign ECC Root CA - G3 and AAA Certificate Services are absent; the p11-kit source still lists roots Mozilla removed, restricted to e-mail or code signing (emSign ECC Root CA - C3 is limited to code signing), so it scans as REVIEW."
     }
   ],
   "binaries": [

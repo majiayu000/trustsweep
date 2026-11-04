@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 
 use crate::brotli::{Rules, Slice, inspect};
 use crate::extract::{Encoding, find_certs};
-use crate::feed::{MatchedBy, Matcher};
+use crate::feed::{MatchedBy, Matcher, Role};
 
 const MAX_DEPTH: usize = 4;
 const MAX_ARCHIVE_ENTRIES: usize = 200_000;
@@ -288,6 +288,11 @@ impl<'a> Scanner<'a> {
                 continue;
             }
             let target = self.matcher.key_patterns[k].1;
+            // A revoked CA present only as a bare key is a distrust list, such as
+            // rustls-webpki's `distrusted/*.spki.der` compiled into uv, pixi or mise.
+            if self.matcher.targets[target].role == Role::Revoked {
+                continue;
+            }
             if seen_targets.insert(target) {
                 hits.push(Hit {
                     target,

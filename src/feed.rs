@@ -66,6 +66,9 @@ pub struct Fix {
     /// Empty means no fixed release yet.
     pub fixed: Vec<String>,
     pub source: String,
+    /// How the fixed release was checked against its actual published artifact.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub verified: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

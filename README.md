@@ -135,7 +135,7 @@ The feed is rebuilt in full by `trustsweep feed update` from three public source
 | [CCADB Mozilla removed-roots report](https://ccadb.my.salesforce-sites.com/mozilla/RemovedCACertificateReportCSVFormat) | 106 unexpired roots Mozilla removed from NSS (expired ones are dropped) | `REVIEW`: the report does not say whether a removal was a distrust or a routine retirement |
 | Incident data, currently [eMudhra, October 2026](https://emudhra.we-have-a-problem.com/) | 16 compromised intermediates and the 4 roots that chain to them, with PEM, so bare keys can be found too | `TRUSTS` for the roots |
 
-The numbers are from the built-in snapshot dated 2026-10-24. Fixed versions per package come from a hand-maintained table that `feed update` keeps.
+The numbers are from the built-in snapshot dated 2026-10-24. Fixed versions per package come from a hand-maintained table that `feed update` keeps. On 2026-11-05 every entry was checked against the actual published artifact; see [docs/fix-verification.md](docs/fix-verification.md) (in Chinese). If a release that is already at or above its listed fix still scans unclean, trustsweep says so instead of suggesting an upgrade to it.
 
 ## Limits
 

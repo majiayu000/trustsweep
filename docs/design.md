@@ -138,3 +138,9 @@ rpm 数据库、Go buildinfo 解析、asar 和 Flatpak 的专门解析、版本�
 - CSV 按表头里的列名取值，列名对不上就报错，不会悄悄读错列。
 - `removed` 只按证书 SHA-256 匹配，因为报告里没有 PEM，也就没有公钥字节可搜。和事件根重复的（例如 emSign ECC Root CA - G3）以事件根为准。
 - 判定：`removed` 命中算 REVIEW，不算失败，因为报告不区分"出了问题被取消信任"和"CA 自己退役"。事件根命中仍是 TRUSTS。文本输出把一个文件里命中的 removed 根合并成一行，JSON 里逐条列出。
+
+## 14. 修复版本核实与两条补充规则（2026-11-05）
+
+- `fixes` 每一条都要用实际发布物扫描核实，过程和结果记在 `verified` 字段和 [fix-verification.md](fix-verification.md) 里。
+- 被撤销的中间 CA 如果只以裸公钥形式出现（`matched_by: embedded-key`），按阻止列表处理，不报告。rustls-webpki 0.103.16 就是这样把 8 个公钥编进 uv、pixi、mise、deno 的。
+- 包版本大于或等于所在分支的修复版本、却仍然不干净时，输出"已是修复版本仍不干净"，不再建议升级到同一版本或更低的版本。分支按版本号的第一段区分；版本号无法按数字比较的，不做这个判断。
