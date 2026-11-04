@@ -64,6 +64,7 @@ fn fix(eco: &str, name: &str, v: &str) -> Fix {
         name: name.into(),
         fixed: vec![v.into()],
         source: "test".into(),
+        verified: String::new(),
     }
 }
 
