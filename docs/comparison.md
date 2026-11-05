@@ -6,7 +6,7 @@
 
 | 通告 | 发布 | 覆盖的包 | 修复版本 |
 |---|---|---|---|
-| GHSA-6q48-6c7w-9gw2 / PYSEC-2026-4320 | 10-20 | PyPI certifi | 2026.10.19 |
+| GHSA-6q48-6c7w-9gw2 / PYSEC-2026-4320 | 10-20 | PyPI certifi | 2026.10.18（OSV 10-26 改为此值）；但 2026.10.19 又加回 emSign C1、C3、G1，实测 2026.10.23 起才干净（[fix-verification.md](fix-verification.md)） |
 | RUSTSEC-2026-0381 | 10-19 | crates.io webpki-roots | 0.26.11、1.0.10 |
 | RUSTSEC-2026-0383 | 10-19 | crates.io webpki-root-certs | 0.26.11、1.0.10 |
 | RUSTSEC-2026-0382 | 10-20 | crates.io rustls-webpki | 0.103.16 |
