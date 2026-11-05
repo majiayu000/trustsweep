@@ -6175,7 +6175,7 @@
       "fixed": [
         "2026-10-20"
       ],
-      "source": "https://github.com/Homebrew/homebrew-core/blob/HEAD/Formula/c/ca-certificates.rb",
+      "source": "https://github.com/Homebrew/homebrew-core/blob/efb3941d1b559befd9245b7ad8dcfe3938cf109e/Formula/c/ca-certificates.rb",
       "verified": "2026-11-05: checked through the formula, bottles not downloaded. 2026-09-25_1 drops the three incident roots by SPKI from curl's 2026-09-25 bundle, which still has emSign C1 and C3 (REVIEW); 2026-10-20 is built from curl's 2026-10-20 bundle, which scans clean."
     },
     {
